@@ -6,32 +6,82 @@
     <title>雫.net | MOE!</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5.2.0/github-markdown-light.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
     
     <style>
         :root {
             --primary: #333;
-            --accent: #2ecc71; /* Halo Higan 的标准亮绿 */
+            --accent: #2ecc71;
             --grey: #95a5a6;
             --bg: #fff;
-            --link-border: #333;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-family: -apple-system, "Noto Serif SC", sans-serif;
             background: var(--bg);
             color: var(--primary);
             margin: 0;
             padding: 0;
             line-height: 1.6;
+            overflow-x: hidden; /* 防止侧滑菜单撑开页面 */
         }
 
         .container {
-            max-width: 600px; /* 手机端视觉，宽度收窄 */
+            max-width: 600px;
             margin: 0 auto;
             padding: 40px 20px 80px;
+            transition: transform 0.3s ease; /* 用于菜单推开效果 */
         }
 
-        /* --- 顶部 Header (复刻图二) --- */
+        /* --- 侧滑菜单 --- */
+        #sidebar {
+            position: fixed;
+            top: 0;
+            right: -250px;
+            width: 250px;
+            height: 100%;
+            background: #fff;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            transition: right 0.3s ease;
+            padding: 40px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        #sidebar.active { right: 0; }
+        
+        /* 遮罩层 */
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.3);
+            z-index: 999;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        #overlay.active { display: block; opacity: 1; }
+
+        .menu-link {
+            font-size: 1.1rem;
+            color: #333;
+            text-decoration: none;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed #eee;
+        }
+        .menu-link:hover { color: var(--accent); }
+
+        /* --- 顶部 Header --- */
         header {
             display: flex;
             justify-content: space-between;
@@ -43,6 +93,7 @@
             display: flex;
             align-items: center;
             gap: 15px;
+            cursor: pointer;
         }
 
         .avatar {
@@ -54,90 +105,47 @@
 
         .site-title {
             font-size: 1.3rem;
-            font-weight: 800; /* 加粗 */
+            font-weight: 800;
             letter-spacing: 1px;
-            color: #333;
         }
 
-        /* 模拟那个汉堡菜单图标 */
         .menu-icon {
             color: var(--accent);
             font-size: 1.5rem;
             cursor: pointer;
+            z-index: 1001; /* 保证在遮罩层之上 */
         }
 
-        /* --- 倒计时区域 (复刻图二文案) --- */
-        .intro-box {
-            margin-bottom: 50px;
-            font-size: 0.95rem;
-            color: #333;
-        }
-        .intro-text { margin-bottom: 20px; }
+        /* --- 内容区域 --- */
+        .intro-box { margin-bottom: 50px; font-size: 0.95rem; }
+        .countdown { font-family: monospace; margin-top: 10px; font-weight: bold;}
         
-        .countdown {
-            font-family: monospace; /* 等宽字体更有数字感 */
-            margin-top: 10px;
-            word-break: break-all;
-        }
+        .social-icons { margin-top: 25px; display: flex; gap: 12px; }
+        .social-icons a { color: #555; font-size: 1.1rem; text-decoration: none; }
 
-        /* 社交图标栏 */
-        .social-icons {
-            margin-top: 25px;
-            display: flex;
-            gap: 12px;
-        }
-        .social-icons a {
-            color: #555;
-            font-size: 1.1rem;
-            text-decoration: none;
-        }
-
-        /* --- "近期发布" 绿色大标题 (复刻图二) --- */
         .section-header {
             font-size: 1.8rem;
             font-weight: 900;
-            color: var(--accent); /* 绿色 */
+            color: var(--accent);
             margin: 40px 0 30px 0;
             letter-spacing: -1px;
         }
 
-        /* --- 文章列表 (复刻图三) --- */
-        .post-list {
-            display: flex;
-            flex-direction: column;
-            gap: 30px; /* 列表间距加大 */
-        }
-
-        .post-item {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .post-date {
-            font-size: 0.85rem;
-            color: var(--grey);
-            margin-bottom: 5px; /* 日期在标题上面 */
-            font-family: monospace;
-        }
-
+        /* --- 列表样式 --- */
+        .post-list { display: flex; flex-direction: column; gap: 30px; }
+        .post-date { font-size: 0.85rem; color: var(--grey); margin-bottom: 5px; font-family: monospace;}
         .post-title {
             font-size: 1.05rem;
             color: #333;
             text-decoration: none;
-            border-bottom: 1px solid #333; /* 黑色细下划线 */
+            border-bottom: 1px solid #333;
             padding-bottom: 2px;
-            width: fit-content; /* 下划线只跟文字一样长 */
-            line-height: 1.5;
+            width: fit-content;
             font-weight: 500;
-            transition: all 0.2s;
         }
-        
-        .post-title:hover {
-            color: var(--accent);
-            border-bottom-color: var(--accent);
-        }
+        .post-title:hover { color: var(--accent); border-bottom-color: var(--accent); }
 
-        /* --- 页脚 (复刻图三底部) --- */
+        /* --- 页脚统计 --- */
         footer {
             margin-top: 80px;
             text-align: center;
@@ -146,9 +154,18 @@
             border-top: 1px solid #f0f0f0;
             padding-top: 30px;
             font-family: monospace;
+            line-height: 2;
         }
         
-        /* 隐藏/显示控制 */
+        .stats-item { margin: 0 5px; }
+
+        /* --- 评论区容器 --- */
+        #comments-section {
+            margin-top: 60px;
+            border-top: 1px dashed #ddd;
+            padding-top: 40px;
+        }
+
         .hidden { display: none !important; }
         .markdown-body { margin-top: 20px; }
         .back-btn { margin-bottom: 20px; cursor: pointer; color: var(--accent); font-weight: bold;}
@@ -156,81 +173,113 @@
 </head>
 <body>
 
+<div id="overlay" onclick="app.toggleMenu()"></div>
+
+<div id="sidebar">
+    <div style="font-weight:900; font-size:1.5rem; margin-bottom:20px;">MENU</div>
+    <a href="#" onclick="app.goHome(); app.toggleMenu()" class="menu-link"><i class="fa-solid fa-house"></i> 首页</a>
+    <a href="#" class="menu-link"><i class="fa-solid fa-layer-group"></i> 分类 (0)</a>
+    <a href="#" class="menu-link"><i class="fa-solid fa-box-archive"></i> 归档</a>
+    <a href="#guestbook.md" onclick="app.toggleMenu()" class="menu-link"><i class="fa-solid fa-comment"></i> 留言板</a>
+    <a href="https://status.nkx.moe" target="_blank" class="menu-link"><i class="fa-solid fa-server"></i> 站点状态</a>
+</div>
+
 <div class="container">
     <header>
         <div class="header-left" onclick="app.goHome()">
             <img src="https://github.com/3257085208.png" class="avatar" alt="avatar">
             <div class="site-title">聶.net MOE!</div>
         </div>
-        <div class="menu-icon"><i class="fa-solid fa-bars"></i></div>
+        <div class="menu-icon" onclick="app.toggleMenu()"><i class="fa-solid fa-bars"></i></div>
     </header>
 
     <div id="home-view">
         <div class="intro-box">
-            <div class="intro-text">28年后，你还会想起我吗？</div>
+            <div>28年后，你还会想起我吗？</div>
             <div class="countdown">
-                距离 <span style="font-weight:bold">2052-02-29</span> 还有 
-                <span id="timer" style="font-weight:bold">计算中...</span>
+                距离 2052-02-29 还有 <span id="timer">...</span>
             </div>
-            
             <div class="social-icons">
                 <a href="mailto:nkx080112@gmail.com"><i class="fa-regular fa-envelope"></i></a>
                 <a href="https://github.com/3257085208"><i class="fa-brands fa-github"></i></a>
                 <a href="#"><i class="fa-brands fa-telegram"></i></a>
-                <a href="https://status.nkx.moe"><i class="fa-solid fa-server"></i></a>
             </div>
         </div>
 
         <div class="section-header">近期发布</div>
 
         <div id="posts-container" class="post-list">
-            <div style="color:#999; font-size:0.9rem;">正在从 GitHub 获取文章...</div>
+            <div style="color:#999">Loading...</div>
         </div>
     </div>
 
     <div id="article-view" class="hidden">
         <div class="back-btn" onclick="app.goHome()">← 返回列表</div>
         <div id="article-content" class="markdown-body"></div>
+        
+        <div id="comments-section">
+            <div style="font-weight:bold; margin-bottom:20px; font-size:1.2rem;">评论</div>
+            <div class="giscus"></div> </div>
     </div>
 
     <footer>
-        <div style="margin-bottom:8px;">Theme is Higan Powered by Nie.net</div>
-        <div>&copy; 2026 聶.net MOE!</div>
-        <div style="margin-top:8px; color:#f1c40f;">
+        <div>Theme Higan | Powered by Nie.net</div>
+        <div>
+            <span id="busuanzi_container_site_pv" style="display:none">
+                <i class="fa-solid fa-eye"></i> 阅览量 <span id="busuanzi_value_site_pv"></span>
+            </span>
+            <span class="stats-item">|</span>
+            <span><i class="fa-solid fa-pen-nib"></i> 已发布 <span id="total-posts">0</span></span>
+            <span class="stats-item">|</span>
+            <span><i class="fa-solid fa-file-word"></i> 总字数 <span id="total-words">0</span></span>
+        </div>
+        <div style="margin-top:10px; color:#f1c40f;">
             <i class="fa-solid fa-star"></i> 小站已稳定运行 <span id="uptime">0</span> 天
         </div>
     </footer>
 </div>
 
+<script src="https://giscus.app/client.js"
+        data-repo="3257085208/NIE" 
+        data-repo-id="R_kgDONtJ_3w"
+        data-category="Announcements"
+        data-category-id="DIC_kwDONtJ_384CmT4-"
+        data-mapping="pathname"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="bottom"
+        data-theme="light"
+        data-lang="zh-CN"
+        crossorigin="anonymous"
+        async>
+</script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
     const app = {
+        posts: [],
         init() {
             window.addEventListener('hashchange', () => this.handleRoute());
             this.fetchData();
             this.startTimer();
         },
 
-        // 获取 posts.json
         async fetchData() {
             try {
-                // 加个时间戳参数 t=... 避免缓存太死
                 const res = await fetch('./posts.json?t=' + Date.now());
                 if(!res.ok) throw new Error("API Error");
-                const posts = await res.json();
-                this.renderList(posts);
+                this.posts = await res.json();
+                this.renderList();
+                this.calcStats(); // 计算总字数
             } catch (e) {
-                document.getElementById('posts-container').innerHTML = "暂无文章或加载失败";
+                document.getElementById('posts-container').innerHTML = "暂无文章";
             }
         },
 
-        // 渲染列表 (严格按照图三的样式)
-        renderList(posts) {
+        renderList() {
             const container = document.getElementById('posts-container');
             container.innerHTML = '';
-            
-            posts.forEach(post => {
-                // 列表项 HTML
+            this.posts.forEach(post => {
                 const item = document.createElement('div');
                 item.className = 'post-item';
                 item.innerHTML = `
@@ -241,18 +290,30 @@
             });
         },
 
-        // 文章渲染
         async renderPost(file) {
             document.getElementById('home-view').classList.add('hidden');
             document.getElementById('article-view').classList.remove('hidden');
             document.getElementById('article-content').innerHTML = "Loading...";
             
+            // 加载评论区 (重新加载 Giscus 以匹配当前文章)
+            this.loadComments();
+
             try {
                 const res = await fetch(`./posts/${file}`);
+                if (!res.ok) throw new Error("404");
                 const text = await res.text();
                 document.getElementById('article-content').innerHTML = marked.parse(text);
             } catch (e) {
-                document.getElementById('article-content').innerHTML = "文章加载失败";
+                document.getElementById('article-content').innerHTML = "文章不存在或加载失败";
+            }
+        },
+
+        loadComments() {
+            // 这里利用 iframe 刷新或者 simple hack 触发 giscus
+            const script = document.querySelector('script[src*="giscus"]');
+            if(script) {
+                const frame = document.querySelector('iframe.giscus-frame');
+                if(frame) frame.contentWindow.postMessage({ giscus: { setConfig: { term: window.location.hash } } }, 'https://giscus.app');
             }
         },
 
@@ -268,23 +329,44 @@
         
         goHome() { window.location.hash = ''; },
 
-        // 倒计时和运行时间逻辑
+        toggleMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            if (sidebar.style.right === '0px' || sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            } else {
+                sidebar.classList.add('active');
+                overlay.classList.add('active');
+            }
+        },
+
+        calcStats() {
+            document.getElementById('total-posts').innerText = this.posts.length;
+            let totalWords = 0;
+            this.posts.forEach(p => totalWords += (p.words || 0));
+            // 格式化数字 1,234
+            document.getElementById('total-words').innerText = totalWords.toLocaleString();
+        },
+
         startTimer() {
-            // 2052 倒计时
             const target = new Date("2052-02-29").getTime();
+            const start = new Date("2025-01-01").getTime();
+            
             setInterval(() => {
-                const diff = target - Date.now();
+                const now = Date.now();
+                // 倒计时
+                const diff = target - now;
                 const d = Math.floor(diff / 86400000);
                 const h = Math.floor((diff % 86400000) / 3600000);
                 const m = Math.floor((diff % 3600000) / 60000);
                 const s = Math.floor((diff % 60000) / 1000);
                 document.getElementById('timer').innerText = `${d} 天 ${h} 时 ${m} 分 ${s} 秒`;
+                
+                // 运行时间
+                const daysRun = Math.floor((now - start) / 86400000);
+                document.getElementById('uptime').innerText = daysRun;
             }, 1000);
-
-            // 运行时间
-            const start = new Date("2025-01-01").getTime();
-            const daysRun = Math.floor((Date.now() - start) / 86400000);
-            document.getElementById('uptime').innerText = daysRun;
         }
     };
     app.init();
