@@ -3,197 +3,346 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>聶.net | NieKaiXiang</title>
-    <meta name="description" content="NieKaiXiang (NKX) 的个人主页 - Server Admin & Developer">
-    <style>
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: rgba(255, 255, 255, 0.05);
-            --text-main: #f8fafc;
-            --text-sub: #94a3b8;
-            --accent: #38bdf8;
-            --hover-bg: rgba(56, 189, 248, 0.1);
-        }
+    <title>聶.net | MOE!</title>
+    <meta name="description" content="NieKaiXiang's Blog - VPS & Code">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-light.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+    <style>
+        /* --- 全局变量配置 (Higan 风格) --- */
+        :root {
+            --primary-text: #333;
+            --secondary-text: #666;
+            --accent-color: #42b983; /* 标志性薄荷绿 */
+            --bg-color: #fafafa;
+            --card-bg: #ffffff;
         }
 
         body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
-            background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, #0f172a 70%);
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+            color: var(--primary-text);
+            margin: 0;
+            padding: 0;
+            line-height: 1.8;
         }
 
+        a { text-decoration: none; color: inherit; transition: color 0.2s; }
+        a:hover { color: var(--accent-color); }
+
+        /* --- 布局容器 --- */
         .container {
-            width: 100%;
-            max-width: 480px;
-            text-align: center;
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 40px 20px;
         }
 
-        /* Profile Section */
-        .profile {
-            margin-bottom: 2rem;
-        }
-
-        .avatar {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            border: 2px solid var(--accent);
-            margin-bottom: 1rem;
-            object-fit: cover;
-            background-color: #1e293b;
-            /* 如果没有头像图片，可以用首字母代替 */
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 2.5rem;
-            color: var(--accent);
-            font-weight: bold;
-        }
-
-        .name {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .bio {
-            color: var(--text-sub);
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
-
-        /* Links Section */
-        .links {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .link-card {
+        /* --- 顶部 Header --- */
+        header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 1rem 1.5rem;
-            background: var(--card-bg);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            color: var(--text-main);
-            text-decoration: none;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
+            margin-bottom: 50px;
         }
 
-        .link-card:hover {
-            transform: translateY(-2px);
-            background: var(--hover-bg);
-            border-color: var(--accent);
-        }
-
-        .link-content {
+        .brand {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 15px;
+            cursor: pointer;
         }
 
-        .link-icon {
-            font-size: 1.2rem;
+        .avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #eaeaea;
+            transition: transform 0.3s;
+        }
+        .avatar:hover { transform: rotate(360deg); }
+
+        .site-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+            letter-spacing: -0.5px;
         }
 
-        .link-title {
+        /* --- 首页组件 --- */
+        .intro { margin-bottom: 30px; color: #444; font-size: 1.05rem; }
+        
+        /* 倒计时盒子 */
+        .countdown-box {
+            margin: 25px 0;
+            padding: 20px;
+            background: #fff;
+            border-left: 4px solid var(--accent-color);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            border-radius: 4px;
+        }
+        .countdown-text { font-size: 0.9rem; color: #666; margin-bottom: 5px; }
+        .countdown-timer { 
+            font-family: 'Courier New', monospace; 
+            font-size: 1.1rem; 
+            font-weight: bold; 
+            color: var(--accent-color); 
+        }
+
+        /* 社交图标 */
+        .social-links { display: flex; gap: 18px; font-size: 1.2rem; color: #888; margin-top: 20px;}
+
+        /* --- 文章列表 --- */
+        .section-title {
+            color: var(--accent-color);
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin: 50px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed #ddd;
+        }
+
+        .post-item { margin-bottom: 25px; }
+        .post-date { 
+            font-size: 0.85rem; 
+            color: #999; 
+            font-family: monospace; 
+            display: block; 
+            margin-bottom: 4px;
+        }
+        .post-link {
+            font-size: 1.15rem;
             font-weight: 500;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 1px;
         }
+        .post-link:hover { border-bottom-color: var(--accent-color); }
 
-        .link-arrow {
-            color: var(--text-sub);
-            font-size: 0.9rem;
-        }
-
-        /* Footer */
-        .footer {
-            margin-top: 3rem;
-            color: var(--text-sub);
-            font-size: 0.8rem;
+        /* --- 文章详情页 --- */
+        .markdown-body {
+            background: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            margin-top: 20px;
         }
         
-        .footer a {
-            color: var(--text-sub);
-            text-decoration: none;
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+            cursor: pointer;
         }
 
-        /* Simple Icons using UTF-8 chars or you can import FontAwesome */
+        /* --- 页脚 --- */
+        footer {
+            margin-top: 80px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #aaa;
+            padding-top: 30px;
+            border-top: 1px solid #eee;
+        }
+        
+        .uptime-badge {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 4px 12px;
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        /* --- 工具类 --- */
+        .hidden { display: none !important; }
+        #loading { text-align: center; color: var(--accent-color); margin-top: 50px; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="profile">
-            <img src="https://github.com/3257085208.png" alt="NieKaiXiang" class="avatar">
-            
-            <h1 class="name">NieKaiXiang (NKX)</h1>
-            <p class="bio">
-                Developer / Server Admin / Linux Enthusiast<br>
-                Exploring the world of VPS & Cloud
-            </p>
+<div class="container">
+    <header>
+        <div class="brand" onclick="router.home()">
+            <img src="https://github.com/3257085208.png" alt="Avatar" class="avatar">
+            <h1 class="site-title">聶.net MOE!</h1>
+        </div>
+        <div style="font-size:1.2rem; cursor:pointer;" onclick="location.reload()">
+            <i class="fa-solid fa-rotate-right" title="刷新"></i>
+        </div>
+    </header>
+
+    <div id="home-view">
+        <div class="intro">
+            <p>VPS 玩家 / Server Admin / NieKaiXiang</p>
+            <p>折腾不止，生命不息。</p>
         </div>
 
-        <div class="links">
-            <a href="https://nkx.moe" class="link-card" target="_blank">
-                <div class="link-content">
-                    <span class="link-icon">📝</span>
-                    <span class="link-title">My Blog (nkx.moe)</span>
-                </div>
-                <span class="link-arrow">→</span>
-            </a>
-
-            <a href="https://status.nkx.moe" class="link-card" target="_blank">
-                <div class="link-content">
-                    <span class="link-icon">📊</span>
-                    <span class="link-title">Server Status (探针)</span>
-                </div>
-                <span class="link-arrow">→</span>
-            </a>
-
-            <a href="https://github.com/3257085208" class="link-card" target="_blank">
-                <div class="link-content">
-                    <span class="link-icon">💻</span>
-                    <span class="link-title">GitHub</span>
-                </div>
-                <span class="link-arrow">→</span>
-            </a>
-
-            <a href="mailto:nkx080112@gmail.com" class="link-card">
-                <div class="link-content">
-                    <span class="link-icon">📧</span>
-                    <span class="link-title">Email Me</span>
-                </div>
-                <span class="link-arrow">→</span>
-            </a>
-            
-             <a href="https://t.me/NieKaiXiang" class="link-card" target="_blank">
-                <div class="link-content">
-                    <span class="link-icon">✈️</span>
-                    <span class="link-title">Telegram</span>
-                </div>
-                <span class="link-arrow">→</span>
-            </a>
+        <div class="countdown-box">
+            <div class="countdown-text"><i class="fa-regular fa-clock"></i> 距离 <span id="target-date-display" style="font-weight:bold"></span> 还有：</div>
+            <div id="countdown-timer" class="countdown-timer">计算中...</div>
         </div>
 
-        <div class="footer">
-            <p>&copy; 2026 NieKaiXiang. All Rights Reserved.</p>
-            <p><a href="https://as6.org">as6.org</a> | 聶.net</p>
+        <div class="social-links">
+            <a href="mailto:nkx080112@gmail.com" title="Email"><i class="fa-solid fa-envelope"></i></a>
+            <a href="https://github.com/3257085208" target="_blank" title="GitHub"><i class="fa-brands fa-github"></i></a>
+            <a href="https://t.me/NieKaiXiang" target="_blank" title="Telegram"><i class="fa-brands fa-telegram"></i></a>
+            <a href="https://status.nkx.moe" target="_blank" title="Server Status"><i class="fa-solid fa-server"></i></a>
         </div>
+
+        <h2 class="section-title">近期发布</h2>
+        
+        <div id="list-container">
+            </div>
     </div>
 
+    <div id="article-view" class="hidden">
+        <div class="back-btn" onclick="router.home()">
+            <i class="fa-solid fa-arrow-left"></i> 返回列表
+        </div>
+        <div id="loading" class="hidden"><i class="fa-solid fa-spinner fa-spin"></i> 加载文章中...</div>
+        <div id="markdown-content" class="markdown-body">
+            </div>
+    </div>
+
+    <footer>
+        <div>Theme is Higan-Lite | Powered by <a href="https://nkx.moe">Nie.net</a></div>
+        <div>&copy; 2026 NieKaiXiang MOE!</div>
+        <div class="uptime-badge">
+            <i class="fa-solid fa-star" style="color:#f1c40f"></i> 小站已稳定运行 <span id="uptime-counter">0</span>
+        </div>
+    </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+    // ============================================
+    //  ⚡️ 配置文件 (在这里修改你的信息)
+    // ============================================
+    const config = {
+        // 1. 文章列表 (每发一篇新文章，就在这里加一行)
+        posts: [
+             { title: "【Nodequality】CloudCone DC1 $9.99/yr 测评", file: "cloudcone.md", date: "2026-01-20" },
+             { title: "Armbian 系统折腾笔记", file: "armbian.md", date: "2026-01-16" },
+             { title: "关于 Nie.net 的服务器架构迁移", file: "hello.md", date: "2026-01-15" }
+        ],
+        
+        // 2. 存放文章的文件夹路径 (必须以 / 结尾)
+        postDir: "./posts/",
+        
+        // 3. 倒计时目标日期 (YYYY-MM-DD)
+        targetDate: "2035-01-01",
+        
+        // 4. 建站日期 (用于计算运行时间, YYYY-MM-DD)
+        startDate: "2025-01-01" 
+    };
+    // ============================================
+
+    // --- 逻辑部分 (一般不需要动) ---
+
+    // 1. 倒计时功能
+    function updateCountdown() {
+        const target = new Date(config.targetDate).getTime();
+        document.getElementById("target-date-display").innerText = config.targetDate;
+        
+        const now = new Date().getTime();
+        const diff = target - now;
+
+        if (diff < 0) {
+            document.getElementById("countdown-timer").innerText = "目标已达成！";
+            return;
+        }
+
+        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+        document.getElementById("countdown-timer").innerText = `${d} 天 ${h} 时 ${m} 分 ${s} 秒`;
+    }
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+
+    // 2. 运行时间统计
+    function updateUptime() {
+        const start = new Date(config.startDate).getTime();
+        const now = new Date().getTime();
+        const diff = now - start;
+        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        document.getElementById("uptime-counter").innerText = `${d} 天 ${h} 小时`;
+    }
+    updateUptime();
+
+    // 3. 路由与渲染引擎
+    const dom = {
+        home: document.getElementById('home-view'),
+        article: document.getElementById('article-view'),
+        list: document.getElementById('list-container'),
+        md: document.getElementById('markdown-content'),
+        loading: document.getElementById('loading')
+    };
+
+    const router = {
+        init() {
+            window.addEventListener('hashchange', this.handleRoute.bind(this));
+            this.handleRoute();
+        },
+        handleRoute() {
+            const hash = window.location.hash.slice(1);
+            if (!hash) {
+                this.renderList();
+            } else {
+                this.renderPost(hash);
+            }
+        },
+        renderList() {
+            dom.home.classList.remove('hidden');
+            dom.article.classList.add('hidden');
+            dom.list.innerHTML = '';
+            window.scrollTo(0, 0);
+
+            config.posts.forEach(post => {
+                const item = document.createElement('div');
+                item.className = 'post-item';
+                item.innerHTML = `
+                    <span class="post-date">${post.date}</span>
+                    <a href="#${post.file}" class="post-link">${post.title}</a>
+                `;
+                dom.list.appendChild(item);
+            });
+        },
+        async renderPost(filename) {
+            dom.home.classList.add('hidden');
+            dom.article.classList.remove('hidden');
+            dom.loading.classList.remove('hidden');
+            dom.md.innerHTML = '';
+            window.scrollTo(0, 0);
+
+            try {
+                // 加载 Markdown 文件
+                const res = await fetch(`${config.postDir}${filename}`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const text = await res.text();
+                // 渲染 Markdown
+                dom.md.innerHTML = marked.parse(text);
+            } catch (err) {
+                dom.md.innerHTML = `<h2 style="color:red">文章加载失败</h2><p>无法找到文件: ${filename} (Error: ${err.message})</p>`;
+            } finally {
+                dom.loading.classList.add('hidden');
+            }
+        },
+        home() {
+            window.location.hash = '';
+        }
+    };
+
+    router.init();
+</script>
 </body>
 </html>
