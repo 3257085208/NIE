@@ -6,87 +6,74 @@
     <title>雫.net | MOE!</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5.2.0/github-markdown-light.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
-    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/@waline/client@v2/dist/waline.css" />
     
     <style>
+        /* --- 变量定义 (支持日夜模式) --- */
         :root {
-            --primary: #333;
-            --accent: #2ecc71;
-            --grey: #95a5a6;
-            --bg: #fff;
+            /* 浅色模式 (默认) */
+            --bg: #ffffff;
+            --text: #333333;
+            --text-sub: #95a5a6;
+            --accent: #2ecc71; /* 经典绿 */
+            --card-bg: #ffffff;
+            --border: #eeeeee;
+            --menu-bg: rgba(255, 255, 255, 0.95);
+            --shadow: rgba(0,0,0,0.1);
         }
 
+        /* 深色模式 override */
+        [data-theme="dark"] {
+            --bg: #1a1a1a;
+            --text: #e0e0e0;
+            --text-sub: #a0a0a0;
+            --accent: #4cd137; /* 夜间绿色稍微亮一点 */
+            --card-bg: #2d2d2d;
+            --border: #444444;
+            --menu-bg: rgba(28, 28, 28, 0.95);
+            --shadow: rgba(0,0,0,0.5);
+        }
+
+        /* 全局过渡动画 */
         body {
             font-family: -apple-system, "Noto Serif SC", sans-serif;
             background: var(--bg);
-            color: var(--primary);
+            color: var(--text);
             margin: 0;
             padding: 0;
             line-height: 1.6;
-            overflow-x: hidden; /* 防止侧滑菜单撑开页面 */
+            transition: background 0.3s, color 0.3s;
         }
 
+        /* Markdown 夜间模式适配 */
+        [data-theme="dark"] .markdown-body {
+            background: transparent;
+            color: var(--text);
+        }
+        [data-theme="dark"] .markdown-body a { color: var(--accent); }
+        [data-theme="dark"] .markdown-body pre { background: #333; }
+
+        /* --- 布局容器 (响应式核心) --- */
         .container {
-            max-width: 600px;
+            max-width: 680px;
             margin: 0 auto;
             padding: 40px 20px 80px;
-            transition: transform 0.3s ease; /* 用于菜单推开效果 */
+            min-height: 100vh;
         }
 
-        /* --- 侧滑菜单 --- */
-        #sidebar {
-            position: fixed;
-            top: 0;
-            right: -250px;
-            width: 250px;
-            height: 100%;
-            background: #fff;
-            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
-            z-index: 1000;
-            transition: right 0.3s ease;
-            padding: 40px;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+        /* 平板端适配 */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .container { max-width: 85%; padding-top: 60px; }
         }
-        
-        #sidebar.active { right: 0; }
-        
-        /* 遮罩层 */
-        #overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.3);
-            z-index: 999;
-            display: none;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        #overlay.active { display: block; opacity: 1; }
 
-        .menu-link {
-            font-size: 1.1rem;
-            color: #333;
-            text-decoration: none;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding-bottom: 10px;
-            border-bottom: 1px dashed #eee;
-        }
-        .menu-link:hover { color: var(--accent); }
-
-        /* --- 顶部 Header --- */
+        /* --- Header --- */
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 60px;
+            margin-bottom: 50px;
+            padding-bottom: 20px;
+            border-bottom: 1px dashed var(--border);
         }
 
         .header-left {
@@ -97,92 +84,154 @@
         }
 
         .avatar {
-            width: 50px;
-            height: 50px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
-            border: 1px solid #eee;
+            border: 2px solid var(--border);
+            transition: transform 0.5s;
         }
+        .avatar:hover { transform: rotate(360deg); }
 
         .site-title {
-            font-size: 1.3rem;
+            font-size: 1.25rem;
             font-weight: 800;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
 
-        .menu-icon {
-            color: var(--accent);
-            font-size: 1.5rem;
+        /* --- 按钮组 (日夜切换 + 菜单) --- */
+        .header-actions {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .icon-btn {
+            font-size: 1.2rem;
+            color: var(--text);
             cursor: pointer;
-            z-index: 1001; /* 保证在遮罩层之上 */
+            transition: color 0.3s, transform 0.2s;
+            background: none;
+            border: none;
+            padding: 5px;
+        }
+        .icon-btn:hover { color: var(--accent); transform: scale(1.1); }
+
+        /* --- 侧滑菜单 --- */
+        #sidebar {
+            position: fixed;
+            top: 0;
+            right: -280px;
+            width: 280px;
+            height: 100%;
+            background: var(--menu-bg);
+            backdrop-filter: blur(10px);
+            box-shadow: -5px 0 15px var(--shadow);
+            z-index: 1000;
+            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 40px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        #sidebar.active { right: 0; }
+        
+        #overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 999;
+            display: none; opacity: 0; transition: opacity 0.3s;
+        }
+        #overlay.active { display: block; opacity: 1; }
+
+        .menu-link {
+            font-size: 1.1rem;
+            color: var(--text);
+            text-decoration: none;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
         }
 
         /* --- 内容区域 --- */
-        .intro-box { margin-bottom: 50px; font-size: 0.95rem; }
-        .countdown { font-family: monospace; margin-top: 10px; font-weight: bold;}
+        .intro-box { margin-bottom: 40px; font-size: 0.95rem; color: var(--text); }
+        .countdown { font-family: monospace; margin-top: 10px; font-weight: bold; color: var(--accent); }
         
-        .social-icons { margin-top: 25px; display: flex; gap: 12px; }
-        .social-icons a { color: #555; font-size: 1.1rem; text-decoration: none; }
+        .social-icons { margin-top: 20px; display: flex; gap: 15px; }
+        .social-icons a { color: var(--text-sub); font-size: 1.2rem; transition: color 0.3s; }
+        .social-icons a:hover { color: var(--accent); }
 
         .section-header {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             font-weight: 900;
             color: var(--accent);
             margin: 40px 0 30px 0;
-            letter-spacing: -1px;
+            position: relative;
+            display: inline-block;
         }
-
+        
         /* --- 列表样式 --- */
-        .post-list { display: flex; flex-direction: column; gap: 30px; }
-        .post-date { font-size: 0.85rem; color: var(--grey); margin-bottom: 5px; font-family: monospace;}
+        .post-list { display: flex; flex-direction: column; gap: 25px; }
+        .post-item { transition: transform 0.2s; }
+        .post-item:active { transform: scale(0.98); } /* 手机端触摸反馈 */
+        
+        .post-date { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 4px; font-family: monospace;}
         .post-title {
-            font-size: 1.05rem;
-            color: #333;
+            font-size: 1.1rem;
+            color: var(--text);
             text-decoration: none;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid var(--text);
             padding-bottom: 2px;
-            width: fit-content;
             font-weight: 500;
+            line-height: 1.4;
         }
         .post-title:hover { color: var(--accent); border-bottom-color: var(--accent); }
 
-        /* --- 页脚统计 --- */
+        /* --- 评论区 (Waline 定制) --- */
+        #waline {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px dashed var(--border);
+        }
+        /* 强制 Waline 跟随日夜模式 */
+        [data-theme="dark"] {
+            --waline-bgcolor: #2d2d2d;
+            --waline-bgcolor-light: #333;
+            --waline-theme-color: var(--accent);
+            --waline-active-color: var(--accent);
+            --waline-text-color: #e0e0e0;
+        }
+
+        /* --- 页脚 --- */
         footer {
             margin-top: 80px;
             text-align: center;
             font-size: 0.8rem;
-            color: var(--grey);
-            border-top: 1px solid #f0f0f0;
-            padding-top: 30px;
-            font-family: monospace;
-            line-height: 2;
+            color: var(--text-sub);
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
         }
         
-        .stats-item { margin: 0 5px; }
-
-        /* --- 评论区容器 --- */
-        #comments-section {
-            margin-top: 60px;
-            border-top: 1px dashed #ddd;
-            padding-top: 40px;
-        }
-
+        /* 辅助类 */
         .hidden { display: none !important; }
-        .markdown-body { margin-top: 20px; }
-        .back-btn { margin-bottom: 20px; cursor: pointer; color: var(--accent); font-weight: bold;}
+        .back-btn { margin-bottom: 20px; cursor: pointer; color: var(--accent); font-weight: bold; font-size: 0.9rem;}
+        
     </style>
 </head>
 <body>
 
 <div id="overlay" onclick="app.toggleMenu()"></div>
 
-<div id="sidebar">
-    <div style="font-weight:900; font-size:1.5rem; margin-bottom:20px;">MENU</div>
+<nav id="sidebar">
+    <div style="font-weight:900; font-size:1.5rem; margin-bottom:10px; color:var(--accent);">MENU</div>
     <a href="#" onclick="app.goHome(); app.toggleMenu()" class="menu-link"><i class="fa-solid fa-house"></i> 首页</a>
-    <a href="#" class="menu-link"><i class="fa-solid fa-layer-group"></i> 分类 (0)</a>
+    <a href="#" class="menu-link"><i class="fa-solid fa-layer-group"></i> 分类</a>
     <a href="#" class="menu-link"><i class="fa-solid fa-box-archive"></i> 归档</a>
-    <a href="#guestbook.md" onclick="app.toggleMenu()" class="menu-link"><i class="fa-solid fa-comment"></i> 留言板</a>
+    <a href="#about.md" onclick="app.toggleMenu()" class="menu-link"><i class="fa-solid fa-user"></i> 关于我</a>
     <a href="https://status.nkx.moe" target="_blank" class="menu-link"><i class="fa-solid fa-server"></i> 站点状态</a>
-</div>
+</nav>
 
 <div class="container">
     <header>
@@ -190,7 +239,15 @@
             <img src="https://github.com/3257085208.png" class="avatar" alt="avatar">
             <div class="site-title">聶.net MOE!</div>
         </div>
-        <div class="menu-icon" onclick="app.toggleMenu()"><i class="fa-solid fa-bars"></i></div>
+        
+        <div class="header-actions">
+            <button class="icon-btn" onclick="app.toggleTheme()" title="切换主题">
+                <i id="theme-icon" class="fa-solid fa-sun"></i>
+            </button>
+            <button class="icon-btn" onclick="app.toggleMenu()" title="菜单">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
     </header>
 
     <div id="home-view">
@@ -209,7 +266,7 @@
         <div class="section-header">近期发布</div>
 
         <div id="posts-container" class="post-list">
-            <div style="color:#999">Loading...</div>
+            <div style="color:var(--text-sub);">Loading...</div>
         </div>
     </div>
 
@@ -217,60 +274,84 @@
         <div class="back-btn" onclick="app.goHome()">← 返回列表</div>
         <div id="article-content" class="markdown-body"></div>
         
-        <div id="comments-section">
-            <div style="font-weight:bold; margin-bottom:20px; font-size:1.2rem;">评论</div>
-            <div class="giscus"></div> </div>
+        <div id="waline"></div>
     </div>
 
     <footer>
         <div>Theme Higan | Powered by Nie.net</div>
-        <div>
-            <span id="busuanzi_container_site_pv" style="display:none">
-                <i class="fa-solid fa-eye"></i> 阅览量 <span id="busuanzi_value_site_pv"></span>
-            </span>
-            <span class="stats-item">|</span>
-            <span><i class="fa-solid fa-pen-nib"></i> 已发布 <span id="total-posts">0</span></span>
-            <span class="stats-item">|</span>
-            <span><i class="fa-solid fa-file-word"></i> 总字数 <span id="total-words">0</span></span>
+        <div style="margin: 8px 0;">
+            <span><i class="fa-solid fa-eye"></i> <span id="busuanzi_value_site_pv">...</span></span> | 
+            <span><i class="fa-solid fa-file-word"></i> <span id="total-words">0</span></span>
         </div>
-        <div style="margin-top:10px; color:#f1c40f;">
-            <i class="fa-solid fa-star"></i> 小站已稳定运行 <span id="uptime">0</span> 天
+        <div style="color:var(--accent);">
+            <i class="fa-solid fa-star"></i> 运行 <span id="uptime">0</span> 天
         </div>
     </footer>
 </div>
 
-<script src="https://giscus.app/client.js"
-        data-repo="3257085208/NIE"
-        data-repo-id="R_kgDOQ9yyCg"
-        data-category="Announcements"
-        data-category-id="DIC_kwDOQ9yyCs4C1NXs"
-        data-mapping="pathname"
-        data-strict="0"
-        data-reactions-enabled="1"
-        data-emit-metadata="0"
-        data-input-position="bottom"
-        data-theme="preferred_color_scheme"
-        data-lang="zh-CN"
-        crossorigin="anonymous"
-        async>
-</script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<script type="module">
+    import { init } from 'https://unpkg.com/@waline/client@v2/dist/waline.mjs';
+
+    window.initWaline = function(path) {
+        init({
+            el: '#waline',
+            // ===============================================
+            // ⚠️ 重要：这里换成你的 Waline 后端地址
+            // 如果你没有部署，可以用这个公共测试地址先看看效果，但数据会随时清空
+            serverURL: 'https://waline-rho-seven-75.vercel.app/', 
+            // ===============================================
+            path: path, // 根据文章路径区分评论
+            dark: 'body[data-theme="dark"]', // 自动适配夜间模式
+            emoji: ['//unpkg.com/@waline/emojis@1.1.0/weibo'],
+            requiredMeta: ['nick'], // 必填昵称，邮箱可选
+            placeholder: '来都来了，不留个名再走？(无需登录)'
+        });
+    }
+</script>
+
 <script>
     const app = {
         posts: [],
+        
         init() {
             window.addEventListener('hashchange', () => this.handleRoute());
             this.fetchData();
             this.startTimer();
+            this.loadTheme(); // 初始化主题
         },
 
+        // --- 主题切换逻辑 ---
+        loadTheme() {
+            const theme = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', theme);
+            this.updateThemeIcon(theme);
+        },
+        toggleTheme() {
+            const current = document.body.getAttribute('data-theme');
+            const next = current === 'light' ? 'dark' : 'light';
+            document.body.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            this.updateThemeIcon(next);
+        },
+        updateThemeIcon(theme) {
+            const icon = document.getElementById('theme-icon');
+            if(theme === 'dark') {
+                icon.className = 'fa-solid fa-moon';
+            } else {
+                icon.className = 'fa-solid fa-sun';
+            }
+        },
+
+        // --- 数据获取 ---
         async fetchData() {
             try {
                 const res = await fetch('./posts.json?t=' + Date.now());
                 if(!res.ok) throw new Error("API Error");
                 this.posts = await res.json();
                 this.renderList();
-                this.calcStats(); // 计算总字数
+                this.calcStats();
             } catch (e) {
                 document.getElementById('posts-container').innerHTML = "暂无文章";
             }
@@ -295,25 +376,16 @@
             document.getElementById('article-view').classList.remove('hidden');
             document.getElementById('article-content').innerHTML = "Loading...";
             
-            // 加载评论区 (重新加载 Giscus 以匹配当前文章)
-            this.loadComments();
+            // 启动评论 (传入当前文件名作为 id)
+            if(window.initWaline) window.initWaline(file);
 
             try {
                 const res = await fetch(`./posts/${file}`);
-                if (!res.ok) throw new Error("404");
+                if(!res.ok) throw new Error("404");
                 const text = await res.text();
                 document.getElementById('article-content').innerHTML = marked.parse(text);
             } catch (e) {
-                document.getElementById('article-content').innerHTML = "文章不存在或加载失败";
-            }
-        },
-
-        loadComments() {
-            // 这里利用 iframe 刷新或者 simple hack 触发 giscus
-            const script = document.querySelector('script[src*="giscus"]');
-            if(script) {
-                const frame = document.querySelector('iframe.giscus-frame');
-                if(frame) frame.contentWindow.postMessage({ giscus: { setConfig: { term: window.location.hash } } }, 'https://giscus.app');
+                document.getElementById('article-content').innerHTML = "文章加载失败";
             }
         },
 
@@ -332,7 +404,7 @@
         toggleMenu() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('overlay');
-            if (sidebar.style.right === '0px' || sidebar.classList.contains('active')) {
+            if (sidebar.classList.contains('active')) {
                 sidebar.classList.remove('active');
                 overlay.classList.remove('active');
             } else {
@@ -342,28 +414,23 @@
         },
 
         calcStats() {
-            document.getElementById('total-posts').innerText = this.posts.length;
-            let totalWords = 0;
-            this.posts.forEach(p => totalWords += (p.words || 0));
-            // 格式化数字 1,234
-            document.getElementById('total-words').innerText = totalWords.toLocaleString();
+            let total = 0;
+            this.posts.forEach(p => total += (p.words || 0));
+            document.getElementById('total-words').innerText = (total / 10000).toFixed(1) + 'w';
         },
 
         startTimer() {
             const target = new Date("2052-02-29").getTime();
             const start = new Date("2025-01-01").getTime();
-            
             setInterval(() => {
                 const now = Date.now();
-                // 倒计时
                 const diff = target - now;
                 const d = Math.floor(diff / 86400000);
                 const h = Math.floor((diff % 86400000) / 3600000);
                 const m = Math.floor((diff % 3600000) / 60000);
                 const s = Math.floor((diff % 60000) / 1000);
-                document.getElementById('timer').innerText = `${d} 天 ${h} 时 ${m} 分 ${s} 秒`;
+                document.getElementById('timer').innerText = `${d}天 ${h}时 ${m}分 ${s}秒`;
                 
-                // 运行时间
                 const daysRun = Math.floor((now - start) / 86400000);
                 document.getElementById('uptime').innerText = daysRun;
             }, 1000);
