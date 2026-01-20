@@ -1,8 +1,8 @@
-name: Auto Build Blog Index
+name: Auto Build
 
 on:
   push:
-    branches: ["main"]  # 监听 main 分支的提交
+    branches: [ "main" ]
   workflow_dispatch:
 
 permissions:
@@ -12,38 +12,36 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
 
-      - name: Generate posts.json
+      - name: Generate JSON
         run: |
-          # 这是一个内联的 Python 脚本，直接在这里运行，省得你上传 py 文件
           python3 -c "
-import os, json, re
-posts = []
-if os.path.exists('posts'):
-    for f in os.listdir('posts'):
-        if f.endswith('.md'):
-            match = re.match(r'(\d{4}-\d{2}-\d{2})-(.+)\.md', f)
-            date = match.group(1) if match else 'Unknown'
-            title = match.group(2) if match else f.replace('.md', '')
-            posts.append({'title': title, 'date': date, 'file': f})
-    posts.sort(key=lambda x: x['date'], reverse=True)
-    with open('posts.json', 'w', encoding='utf-8') as out:
-        json.dump(posts, out, ensure_ascii=False)
-print('JSON Generated')
+          import os, json, re
+          posts = []
+          if os.path.exists('posts'):
+              for f in os.listdir('posts'):
+                  if f.endswith('.md'):
+                      match = re.match(r'(\d{4}-\d{2}-\d{2})-(.+)\.md', f)
+                      date = match.group(1) if match else 'Unknown'
+                      title = match.group(2) if match else f.replace('.md', '')
+                      posts.append({'title': title, 'date': date, 'file': f})
+          posts.sort(key=lambda x: x['date'], reverse=True)
+          with open('posts.json', 'w', encoding='utf-8') as out:
+              json.dump(posts, out, ensure_ascii=False)
+          print('JSON Generated')
           "
 
-      - name: Commit and Push json
+      - name: Commit and Push
         run: |
           git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add posts.json
-          # 如果 posts.json 有变化才提交
           git commit -m "Auto update posts.json" || echo "No changes to commit"
           git push
