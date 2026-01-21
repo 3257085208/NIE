@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>雫.net | MOE!</title>
     
-    <link rel="dns-prefetch" href="//cdn.bootcdn.net">
-    <link rel="dns-prefetch" href="//cdn.staticfile.org">
+    <link rel="dns-prefetch" href="//lib.baomitu.com">
     <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="//busuanzi.ibruce.info">
 
-    <link rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/5.2.0/github-markdown-light.min.css">
-    <link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/5.2.0/github-markdown-light.min.css">
+    <link rel="stylesheet" href="https://lib.baomitu.com/font-awesome/6.4.0/css/all.min.css">
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@waline/client@v2/dist/waline.css" />
 
@@ -51,9 +51,8 @@
         }
 
         body {
-            /* ⚡️ 字体优化：移除在线字体，直接使用系统自带的圆润字体，速度 +1s */
-            /* 顺序：Mac圆体 -> Win幼圆 -> Win雅黑UI -> Win雅黑 -> 系统默认 */
-            font-family: 'Yuanti SC', 'YouYuan', 'Microsoft YaHei UI', 'Microsoft YaHei', 'Segoe UI', sans-serif;
+            /* ⚡️ 速度核心：直接使用系统圆体，0延迟 */
+            font-family: 'Yuanti SC', 'YouYuan', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
             background: var(--bg);
             color: var(--text);
             margin: 0;
@@ -306,8 +305,9 @@
     </footer>
 </div>
 
-<script src="https://cdn.bootcdn.net/ajax/libs/marked/9.1.2/marked.min.js"></script>
+<script src="https://lib.baomitu.com/marked/9.1.2/marked.min.js"></script>
 <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
 <script type="module">
     import { init } from 'https://cdn.jsdelivr.net/npm/@waline/client@v2/dist/waline.mjs';
     window.loadWaline = function(path) {
@@ -318,7 +318,7 @@
             serverURL: 'https://waline-comment-seven-beta.vercel.app', 
             path: path,
             dark: 'body[data-theme="dark"]',
-            // Emoji 换用 JSDelivr 避免 403
+            // 修复 Emoji 加载
             emoji: ['//cdn.jsdelivr.net/npm/@waline/emojis@1.1.0/weibo'],
             login: 'enable',
             search: false, 
