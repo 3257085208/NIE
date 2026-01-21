@@ -12,7 +12,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout
         uses: actions/checkout@v3
 
       - name: Setup Python
@@ -20,88 +20,56 @@ jobs:
         with:
           python-version: '3.9'
 
-      - name: Install Dependencies
+      - name: Install dependencies
         run: pip install pyyaml
 
-      # 关键修改：先将 Python 代码写入一个临时文件，再运行
-      # 这样可以完美避开 Shell 引号转义的 Bug
-      - name: Generate JSON Script
+      - name: Generate JSON
         run: |
-          cat << 'EOF' > generate_posts.py
-          import os
-          import json
-          import re
-          import yaml
+          python3 -c "
+          import os, json, re, yaml
 
-          POSTS_DIR = 'posts'
-          OUTPUT_FILE = 'posts.json'
           posts = []
-
-          print(f"Checking directory: {POSTS_DIR}")
-
-          if os.path.exists(POSTS_DIR):
-              for f in os.listdir(POSTS_DIR):
+          # 扫描 posts 文件夹
+          if os.path.exists('posts'):
+              for f in os.listdir('posts'):
                   if f.endswith('.md'):
-                      filepath = os.path.join(POSTS_DIR, f)
                       try:
-                          # 1. 基础信息
-                          metadata = {
-                              'title': f.replace('.md', ''),
-                              'date': '2020-01-01', # 默认日期
-                              'category': '日常',
-                              'tags': [],
-                              'file': f
-                          }
-
-                          # 2. 尝试文件名日期解析 (2026-01-20-标题.md)
-                          fname_match = re.match(r'(\d{4}-\d{2}-\d{2})-(.+)\.md', f)
-                          if fname_match:
-                              metadata['date'] = fname_match.group(1)
-                              metadata['title'] = fname_match.group(2)
-
-                          # 3. 读取 Front Matter
-                          with open(filepath, 'r', encoding='utf-8') as file:
+                          item = {'file': f, 'title': f.replace('.md', ''), 'date': '2020-01-01', 'tags': []}
+                          
+                          # 1. 尝试从文件名获取日期
+                          match = re.match(r'(\d{4}-\d{2}-\d{2})-(.+)\.md', f)
+                          if match:
+                              item['date'] = match.group(1)
+                              item['title'] = match.group(2)
+                          
+                          # 2. 尝试读取 Front Matter (YAML头)
+                          with open(os.path.join('posts', f), 'r', encoding='utf-8') as file:
                               content = file.read()
-                              # 匹配开头的 --- yaml ---
-                              fm_match = re.search(r'^---\s+(.*?)\s+---', content, re.DOTALL)
-                              if fm_match:
+                              # 简单的正则匹配 YAML
+                              fm = re.search(r'^---\s+(.*?)\s+---', content, re.DOTALL)
+                              if fm:
                                   try:
-                                      yaml_data = yaml.safe_load(fm_match.group(1))
-                                      if isinstance(yaml_data, dict):
-                                          # 安全更新数据
-                                          if 'title' in yaml_data: metadata['title'] = str(yaml_data['title'])
-                                          if 'date' in yaml_data: metadata['date'] = str(yaml_data['date'])
-                                          if 'category' in yaml_data: metadata['category'] = str(yaml_data['category'])
-                                          if 'tags' in yaml_data:
-                                              tags = yaml_data['tags']
-                                              if isinstance(tags, str): tags = [tags]
-                                              metadata['tags'] = tags
-                                  except Exception as e:
-                                      print(f"YAML Warning in {f}: {e}")
+                                      meta = yaml.safe_load(fm.group(1))
+                                      if meta:
+                                          if 'title' in meta: item['title'] = str(meta['title'])
+                                          if 'date' in meta: item['date'] = str(meta['date'])
+                                          if 'tags' in meta: item['tags'] = meta['tags']
+                                  except: pass
+                          
+                          posts.append(item)
+                      except: pass
 
-                          posts.append(metadata)
-                          print(f"Parsed: {metadata['title']}")
+          # 按日期倒序
+          posts.sort(key=lambda x: x['date'], reverse=True)
 
-                      except Exception as e:
-                          print(f"Error processing {f}: {e}")
-
-          # 排序
-          posts.sort(key=lambda x: str(x['date']), reverse=True)
-
-          # 写入
-          with open(OUTPUT_FILE, 'w', encoding='utf-8') as out:
-              json.dump(posts, out, ensure_ascii=False)
-          print(f"Done. Generated {len(posts)} posts.")
-          EOF
-
-      - name: Run Generation
-        run: python3 generate_posts.py
+          with open('posts.json', 'w', encoding='utf-8') as f:
+              json.dump(posts, f, ensure_ascii=False)
+          "
 
       - name: Commit and Push
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          # 如果文件没有变化，git commit 会报错，所以加了 || echo 来忽略错误
           git add posts.json
-          git commit -m "Auto update posts.json" || echo "No changes to commit"
+          git commit -m "Auto update json" || echo "No changes"
           git push
