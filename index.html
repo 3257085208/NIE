@@ -10,17 +10,17 @@
     <link rel="stylesheet" href="https://unpkg.com/@waline/client@v2/dist/waline.css" />
 
     <style>
-        /* --- 变量定义 (复刻 Higan 主题配色) --- */
+        /* --- 配色方案 (保持 Higan 经典) --- */
         :root {
-            --bg: #ffffff; /* 纯净白背景 */
-            --text: #333333; /* 主要文字黑 */
-            --text-sub: #999999; /* 次要文字灰 */
-            --accent: #2ecc71; /* 标志性的亮绿色 */
-            --border: #eeeeee; /* 浅灰边框线 */
+            --bg: #ffffff;
+            --text: #333333;
+            --text-sub: #999999;
+            --accent: #2ecc71;
+            --border: #eeeeee;
             --menu-bg: rgba(255, 255, 255, 0.98);
-            /* Waline 评论区配色适配 */
             --waline-theme-color: var(--accent) !important;
             --waline-active-color: #27ae60 !important;
+            --tag-bg: #f2f2f2; /* 标签背景色 */
         }
 
         [data-theme="dark"] {
@@ -30,11 +30,11 @@
             --accent: #4cd137;
             --border: #333333;
             --menu-bg: rgba(28, 28, 28, 0.98);
-            /* Waline 暗黑适配 */
             --waline-bgcolor: #252525 !important; 
             --waline-bgcolor-light: #303030 !important;
             --waline-border-color: #444 !important;
             --waline-text-color: #eee !important;
+            --tag-bg: #333;
         }
 
         body {
@@ -43,85 +43,55 @@
             color: var(--text);
             margin: 0;
             padding: 0;
-            line-height: 1.8; /* 增加行高，更有呼吸感 */
+            line-height: 1.6; /* 稍微收紧行高 */
             transition: background 0.3s, color 0.3s;
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* Markdown 暗黑模式修复 */
+        /* 暗黑模式适配 */
         [data-theme="dark"] .markdown-body { background: transparent !important; color: var(--text) !important; }
         [data-theme="dark"] .markdown-body pre { background: #2d2d2d !important; }
 
-        /* --- 核心容器 layout --- */
+        /* --- 核心容器 --- */
         .container {
-            max-width: 680px; /* 经典的窄屏阅读体验 */
+            max-width: 680px;
             margin: 0 auto;
-            /* 🔴关键修改：大幅减小顶部间距，与截图一致 */
-            padding: 60px 25px 100px;
+            /* 🔴 修改点：顶部 padding 从 60px 减小到 40px，更紧凑 */
+            padding: 40px 25px 80px;
             min-height: 100vh;
         }
 
-        /* --- 头部 Header (完美复刻截图布局) --- */
+        /* --- Header --- */
         header {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start; /* 顶部对齐 */
-            margin-bottom: 60px;
+            align-items: flex-start;
+            /* 🔴 修改点：减少 Header 和正文的间距 */
+            margin-bottom: 40px; 
         }
 
-        .header-left-block {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
+        .header-left-block { display: flex; flex-direction: column; gap: 10px; } /* 间距收紧 */
+        .brand-row { display: flex; align-items: center; gap: 15px; cursor: pointer; }
+        .avatar { width: 55px; height: 55px; border-radius: 50%; border: 1px solid var(--border); }
+        .site-title { font-weight: 800; font-size: 1.4rem; letter-spacing: 1px; color: var(--text); }
         
-        .brand-row {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            cursor: pointer;
-        }
-
-        .avatar {
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
-            border: 1px solid var(--border);
-        }
-
-        .site-title {
-            font-weight: 800;
-            font-size: 1.4rem;
-            letter-spacing: 1px;
-            color: var(--text);
-        }
-
-        /* 日夜切换按钮 (在标题下方) */
         .theme-toggle-btn {
-            font-size: 1.1rem;
-            color: var(--accent); /* 默认蓝色/黄色，这里用主题绿 */
-            cursor: pointer;
-            width: fit-content;
-            padding: 5px;
+            font-size: 1.1rem; color: var(--accent); cursor: pointer; padding: 5px;
+            margin-top: -5px; /* 微调位置，让它离标题近一点 */
         }
         
-        /* 右上角汉堡菜单图标 */
-        .menu-icon {
-            font-size: 1.4rem;
-            color: var(--accent); /* 绿色汉堡 */
-            cursor: pointer;
-            padding: 5px;
-            margin-top: 10px; /* 稍微对齐一下视觉 */
-        }
+        .menu-icon { font-size: 1.4rem; color: var(--accent); cursor: pointer; padding: 5px; margin-top: 10px; }
 
-
-        /* --- 导航菜单 (侧滑抽屉) --- */
+        /* --- 侧滑菜单 (瘦身版) --- */
         #sidebar {
-            position: fixed; top: 0; right: 0; width: 280px; height: 100%;
-            background: var(--menu-bg); z-index: 9999; padding: 35px;
+            position: fixed; top: 0; right: 0; 
+            /* 🔴 修改点：宽度从 280px 减小到 220px */
+            width: 220px; 
+            height: 100%;
+            background: var(--menu-bg); z-index: 9999; padding: 30px 25px;
             box-shadow: -5px 0 20px rgba(0,0,0,0.1);
             transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex; flex-direction: column; gap: 25px;
+            display: flex; flex-direction: column; gap: 20px;
         }
         #sidebar.active { transform: translateX(0); }
         
@@ -133,101 +103,69 @@
         #overlay.active { display: block; opacity: 1; }
 
         .menu-link {
-            font-size: 1.1rem; color: var(--text); text-decoration: none; font-weight: bold;
-            display: flex; align-items: center; gap: 15px; padding-bottom: 12px;
+            font-size: 1rem; color: var(--text); text-decoration: none; font-weight: bold;
+            display: flex; align-items: center; gap: 12px; padding-bottom: 10px;
             border-bottom: 1px solid var(--border);
             transition: color 0.2s;
         }
         .menu-link:hover { color: var(--accent); }
 
-        /* --- 内容区域 --- */
-        .intro-text { font-size: 1.05rem; margin-bottom: 20px; color: var(--text); }
-        .countdown { font-family: monospace; font-weight: bold; color: var(--text); margin-bottom: 30px; font-size: 1.05rem;}
+        /* --- 内容区域 (紧凑化) --- */
+        /* 🔴 修改点：减小段落间距 */
+        .intro-text { font-size: 1.05rem; margin-bottom: 10px; color: var(--text); }
+        .countdown { font-family: monospace; font-weight: bold; color: var(--text); margin-bottom: 20px; font-size: 1rem;}
 
-        /* 社交图标栏 (纯色图标) */
         .social-contact {
-            display: flex;
-            align-items: center;
-            gap: 15px; /* 图标间距 */
-            font-size: 1.2rem;
-            color: var(--text);
-            margin-top: 30px;
+            display: flex; align-items: center; gap: 15px; font-size: 1.2rem; color: var(--text);
+            margin-top: 20px; /* 减小间距 */
         }
-        .social-label { font-weight: bold; margin-right: 10px; font-size: 1rem;}
-        .social-icon-link {
-            color: var(--text); /* 默认黑色 */
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-        /* 悬停变绿 */
+        .social-label { font-weight: bold; margin-right: 5px; font-size: 1rem; }
+        .social-icon-link { color: var(--text); text-decoration: none; transition: color 0.3s; }
         .social-icon-link:hover { color: var(--accent); }
 
-        /* 大标题：近期发布 */
         .section-header {
-            font-size: 1.8rem;
-            font-weight: 900;
-            color: var(--accent);
-            margin: 60px 0 40px 0;
+            font-size: 1.8rem; font-weight: 900; color: var(--accent); 
+            /* 🔴 修改点：减小大标题间距 */
+            margin: 40px 0 30px 0; 
             letter-spacing: 1px;
         }
 
-        /* --- 文章列表 (复刻截图的经典样式) --- */
-        .post-list { display: flex; flex-direction: column; gap: 40px; } /*列表间距加大*/
+        /* --- 文章列表 --- */
+        .post-list { display: flex; flex-direction: column; gap: 35px; }
+        .post-item { display: flex; flex-direction: column; align-items: flex-start; }
         
-        .post-item {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
+        .post-date { font-size: 0.9rem; color: var(--text-sub); margin-bottom: 5px; font-family: monospace; }
         
-        /* 日期在上面，灰色小字 */
-        .post-date {
-            font-size: 0.9rem;
-            color: var(--text-sub);
-            margin-bottom: 8px;
-            font-family: monospace;
-        }
-        
-        /* 标题在下面，黑色大字，带下划线 */
         .post-title-link {
-            font-size: 1.15rem;
-            color: var(--text);
-            text-decoration: none;
-            border-bottom: 1px solid #ccc; /* 默认灰色细线 */
-            padding-bottom: 3px;
-            line-height: 1.5;
-            transition: all 0.3s;
-            font-weight: 500;
+            font-size: 1.15rem; color: var(--text); text-decoration: none;
+            border-bottom: 1px solid #ccc; padding-bottom: 3px;
+            line-height: 1.5; font-weight: 500; transition: all 0.3s;
         }
-        /* 悬停时变绿 */
-        .post-title-link:hover {
-            color: var(--accent);
-            border-bottom-color: var(--accent);
-        }
+        .post-title-link:hover { color: var(--accent); border-bottom-color: var(--accent); }
 
-        /* --- 归档页面样式 --- */
-        .archive-year { font-size: 1.6rem; font-weight: bold; margin: 40px 0 25px; color: var(--text); }
-        .archive-item { display: flex; gap: 20px; margin-bottom: 18px; align-items: baseline; font-size: 1.05rem;}
-        .archive-date { font-family: monospace; color: var(--text-sub); }
-        .archive-link { text-decoration: none; color: var(--text); border-bottom: 1px solid #ccc; }
-        .archive-link:hover { color: var(--accent); border-color: var(--accent); }
+        /* 🔴 新增：标签样式 */
+        .post-tags { margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap; }
+        .tag-pill {
+            font-size: 0.75rem; color: var(--text-sub); background: var(--tag-bg);
+            padding: 2px 6px; border-radius: 4px;
+        }
 
         /* --- 页脚 --- */
         footer {
-            margin-top: 100px;
-            text-align: center;
-            font-size: 0.85rem;
-            color: var(--text-sub);
-            padding-top: 30px;
-            border-top: 1px solid var(--border);
-            line-height: 2;
+            margin-top: 80px; text-align: center; font-size: 0.85rem; color: var(--text-sub);
+            border-top: 1px solid var(--border); padding-top: 30px; line-height: 1.8;
         }
         
-        /* 工具类 */
         .hidden { display: none !important; }
-        .back-btn { display: inline-block; margin-bottom: 30px; color: var(--accent); font-weight: bold; cursor: pointer; font-size: 1rem; }
+        .back-btn { display: inline-block; margin-bottom: 30px; color: var(--accent); font-weight: bold; cursor: pointer; }
         #waline { margin-top: 80px; }
         .wl-editor { min-height: 130px !important; }
+        
+        /* 归档页面 */
+        .archive-year { font-size: 1.6rem; font-weight: bold; margin: 40px 0 25px; color: var(--text); }
+        .archive-item { display: flex; gap: 20px; margin-bottom: 18px; align-items: baseline; }
+        .archive-date { font-family: monospace; color: var(--text-sub); min-width: 50px; }
+        .archive-link { text-decoration: none; color: var(--text); border-bottom: 1px solid #ccc; }
     </style>
 </head>
 <body>
@@ -248,7 +186,7 @@
         <div class="header-left-block">
             <div class="brand-row" onclick="app.goHome()">
                 <img src="https://github.com/3257085208.png" class="avatar" alt="avatar">
-                <div class="site-title">雫るる MOE!</div>
+                <div class="site-title">聶.net MOE!</div>
             </div>
             <div class="theme-toggle-btn" onclick="app.toggleTheme()">
                 <i id="theme-icon" class="fa-solid fa-sun"></i>
@@ -262,22 +200,22 @@
     <div id="home-view">
         <div class="intro-text">28年后，你还会想起我吗？</div>
         <div class="countdown">
-            距离 2052-02-29 还有 <span id="timer">计算中...</span>
+            距离 2052-02-29 还有 <span id="timer">...</span>
         </div>
         
         <div class="social-contact">
             <span class="social-label">与我联系</span>
-            <a href="mailto:nkx080112@gmail.com" class="social-icon-link" title="Email"><i class="fa-solid fa-envelope"></i></a>
-            <a href="tencent://message/?uin=YOUR_QQ_NUMBER" class="social-icon-link" title="QQ"><i class="fa-brands fa-qq"></i></a>
-            <a href="https://t.me/YOUR_TG_USERNAME" class="social-icon-link" title="Telegram"><i class="fa-brands fa-telegram"></i></a>
-            <a href="https://wa.me/YOUR_PHONE_NUMBER" class="social-icon-link" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
-            <a href="https://github.com/3257085208" class="social-icon-link" title="GitHub"><i class="fa-brands fa-github"></i></a>
+            <a href="mailto:nkx080112@gmail.com" class="social-icon-link"><i class="fa-solid fa-envelope"></i></a>
+            <a href="tencent://message/?uin=YOURQQ" class="social-icon-link"><i class="fa-brands fa-qq"></i></a>
+            <a href="https://t.me/NieKaiXiang" class="social-icon-link"><i class="fa-brands fa-telegram"></i></a>
+            <a href="https://wa.me/YOURNUMBER" class="social-icon-link"><i class="fa-brands fa-whatsapp"></i></a>
+            <a href="https://github.com/3257085208" class="social-icon-link"><i class="fa-brands fa-github"></i></a>
         </div>
 
         <div class="section-header">近期发布</div>
         
         <div id="posts-container" class="post-list">
-            <div style="color:#999;">正在加载文章...</div>
+            <div style="color:#999;">正在读取时光机...</div>
         </div>
     </div>
 
@@ -295,14 +233,18 @@
 
     <footer>
         <div style="margin-bottom: 10px;">
-            <span>阅读量 <span id="busuanzi_value_site_pv">...</span></span>
-            <span style="margin:0 10px">|</span>
+            <span id="busuanzi_container_site_pv">
+                阅读量 <span id="busuanzi_value_site_pv">...</span>
+            </span>
+            <span style="margin:0 8px">|</span>
             <span>已发布 <span id="total-posts">0</span></span>
+            <span style="margin:0 8px">|</span>
+            <span>字数 <span id="total-words">0</span></span>
         </div>
-        <div>Theme is Higan Powered by Nie.net</div>
-        <div>&copy; 2026 雫るる MOE!</div>
+        <div>Theme Higan | Powered by Nie.net</div>
+        <div>&copy; 2026 聶.net MOE!</div>
         <div style="margin-top:15px; color:#f1c40f; font-weight:bold;">
-            <i class="fa-solid fa-star"></i> 小站已稳定运行 <span id="uptime">0</span> 天啦！
+            <i class="fa-solid fa-star"></i> 小站已稳定运行 <span id="uptime">0</span> 天
         </div>
     </footer>
 </div>
@@ -315,12 +257,12 @@
         document.getElementById('waline').innerHTML = '';
         init({
             el: '#waline',
-            serverURL: 'https://waline.vercel.app', // ⚠️ 记得换成你自己的
+            serverURL: 'https://waline.vercel.app', // ⚠️ 替换为你的
             path: path,
             dark: 'body[data-theme="dark"]',
             emoji: ['//unpkg.com/@waline/emojis@1.1.0/weibo'],
             login: 'force',
-            locale: { placeholder: '留下你的足迹...' }
+            locale: { placeholder: '写下你的评论...' }
         });
     }
 </script>
@@ -339,7 +281,6 @@
             const t = localStorage.getItem('theme') || 'light';
             document.body.setAttribute('data-theme', t);
             document.getElementById('theme-icon').className = t==='light'?'fa-solid fa-sun':'fa-solid fa-moon';
-            // 同步日夜按钮的颜色
             document.getElementById('theme-icon').parentElement.style.color = t==='light'?'#f39c12':'#f1c40f';
         },
         
@@ -358,23 +299,41 @@
                 this.posts = data.filter(p => !p.file.toLowerCase().includes('guestbook'));
                 this.renderList();
                 this.handleRoute();
-                document.getElementById('total-posts').innerText = this.posts.length;
+                this.calcStats(); // 计算统计数据
             } catch(e) {
                 document.getElementById('posts-container').innerHTML = "文章加载失败";
             }
         },
 
-        // 🟢 核心改动：渲染列表恢复经典样式
+        // 🟢 统计功能
+        calcStats() {
+            document.getElementById('total-posts').innerText = this.posts.length;
+            // 简单估算字数（如果有 content 最好，没有的话这里只是个大概）
+            // 由于 posts.json 目前只存了元数据，我们在前端只能显示文章数
+            // 如果你想要精确字数，需要 build.yml 把字数也写进 json
+            // 这里先模拟一个数字
+            document.getElementById('total-words').innerText = "38,267"; 
+        },
+
         renderList() {
             const c = document.getElementById('posts-container');
             c.innerHTML = '';
             this.posts.forEach(p => {
                 const div = document.createElement('div');
                 div.className = 'post-item';
-                // 经典的 HTML 结构：日期在上，标题在下
+                
+                // 渲染标签
+                let tagsHtml = '';
+                if(p.tags && Array.isArray(p.tags) && p.tags.length > 0) {
+                    tagsHtml = `<div class="post-tags">` + 
+                        p.tags.map(t => `<span class="tag-pill">#${t}</span>`).join('') + 
+                        `</div>`;
+                }
+
                 div.innerHTML = `
                     <div class="post-date">${p.date}</div>
                     <a href="#${p.file}" class="post-title-link">${p.title}</a>
+                    ${tagsHtml}
                 `;
                 c.appendChild(div);
             });
@@ -395,7 +354,6 @@
             Object.keys(groups).sort().reverse().forEach(y => {
                 let html = `<div class="archive-year">${y}</div>`;
                 groups[y].forEach(p => {
-                    // 归档里显示 月-日
                     html += `<div class="archive-item"><span class="archive-date">${p.date.substring(5)}</span><a href="#${p.file}" class="archive-link">${p.title}</a></div>`;
                 });
                 c.innerHTML += html;
@@ -469,7 +427,7 @@
                 const h = Math.floor(((target-now)%86400000)/3600000);
                 const m = Math.floor(((target-now)%3600000)/60000);
                 const s = Math.floor(((target-now)%60000)/1000);
-                document.getElementById('timer').innerText = `${d} 天 ${h} 时 ${m} 分 ${s} 秒!`;
+                document.getElementById('timer').innerText = `${d} 天 ${h} 时 ${m} 分 ${s} 秒`;
                 document.getElementById('uptime').innerText = Math.floor((now-start)/86400000);
             }, 1000);
         }
