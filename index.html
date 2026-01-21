@@ -335,7 +335,7 @@
         document.getElementById('waline').innerHTML = '';
         init({
             el: '#waline',
-            serverURL: 'https://waline.vercel.app', 
+            serverURL: 'https://waline.nkx.moe', 
             path: path,
             dark: 'body[data-theme="dark"]',
             emoji: ['//unpkg.com/@waline/emojis@1.1.0/weibo'],
@@ -530,7 +530,7 @@
                 const s = utc8.getSeconds().toString().padStart(2, '0');
                 
                 document.getElementById('clock-text').innerText = 
-                    `当前 (UTC+8 北京时间) 公元 ${y} 年 ${m} 月 ${d} 日 ${h} 时 ${min} 分 ${s} 秒`;
+                    `公元 ${y} 年 ${m} 月 ${d} 日 ${h} 时 ${min} 分 ${s} 秒`;
                 
                 // 运行天数计算
                 const start = new Date("2025-01-01").getTime();
