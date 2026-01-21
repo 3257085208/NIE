@@ -37,33 +37,32 @@ jobs:
                   if f.endswith('.md'):
                       filepath = os.path.join(POSTS_DIR, f)
                       
-                      # 1. 基础信息
                       item = {
                           'file': f,
                           'title': f.replace('.md', ''),
                           'date': '2020-01-01',
                           'category': '默认',
                           'tags': [],
-                          'word_count': 0  # 新增字数统计
+                          'word_count': 0,
+                          'content': '' # 默认为空，减少体积
                       }
 
-                      # 2. 从文件名提取日期
+                      # 提取日期
                       match = re.match(r'(\d{4}-\d{2}-\d{2})-(.+)\.md', f)
                       if match:
                           item['date'] = match.group(1)
                           item['title'] = match.group(2)
                       
-                      # 3. 读取内容并解析 Front Matter
                       try:
                           with open(filepath, 'r', encoding='utf-8') as file:
-                              content = file.read()
+                              file_content = file.read()
                               
-                              # 统计字数 (去掉空格和换行)
-                              clean_text = re.sub(r'\s+', '', content)
+                              # 1. 统计字数
+                              clean_text = re.sub(r'\s+', '', file_content)
                               item['word_count'] = len(clean_text)
 
-                              # 解析 YAML
-                              fm = re.search(r'^---\s*\n(.*?)\n---', content, re.DOTALL)
+                              # 2. 解析 Front Matter
+                              fm = re.search(r'^---\s*\n(.*?)\n---', file_content, re.DOTALL)
                               if fm:
                                   meta = yaml.safe_load(fm.group(1))
                                   if meta and isinstance(meta, dict):
@@ -71,12 +70,18 @@ jobs:
                                       if 'date' in meta: item['date'] = str(meta['date'])
                                       if 'category' in meta: item['category'] = str(meta['category'])
                                       if 'tags' in meta: item['tags'] = meta['tags'] if isinstance(meta['tags'], list) else [str(meta['tags'])]
+                              
+                              # 3. 关键逻辑：如果是'说说'，则保存内容以便直接展示
+                              if item['category'] == '说说':
+                                  # 去除 Front Matter，只保留正文
+                                  real_content = re.sub(r'^---\s*\n(.*?)\n---', '', file_content, flags=re.DOTALL).strip()
+                                  item['content'] = real_content
+
                       except:
-                          pass # 读取失败就用默认值
+                          pass
 
                       posts.append(item)
 
-          # 按日期倒序
           posts.sort(key=lambda x: str(x['date']), reverse=True)
 
           with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
@@ -88,5 +93,5 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add posts.json
-          git commit -m "Update posts & stats" || echo "No changes"
+          git commit -m "Update posts" || echo "No changes"
           git push
