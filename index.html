@@ -10,6 +10,9 @@
     <link rel="dns-prefetch" href="//fonts.loli.net">
     <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
 
+    <link rel="preload" href="https://cdn.staticfile.org/github-markdown-css/5.2.0/github-markdown-light.min.css" as="style">
+    <link rel="preload" href="https://cdn.staticfile.org/font-awesome/6.4.2/css/all.min.css" as="style">
+
     <link rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/5.2.0/github-markdown-light.min.css">
     <link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.4.2/css/all.min.css">
     <link href="https://fonts.loli.net/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -131,7 +134,7 @@
         .post-list { display: flex; flex-direction: column; gap: 35px; }
         .post-item { display: flex; flex-direction: column; align-items: flex-start; }
         .post-date { font-size: 0.9rem; color: var(--text-sub); margin-bottom: 8px; font-weight: 700; }
-        /* 🟢 修复手机下划线 Bug 的新 CSS */
+        
         .post-title-link {
             font-size: 1.3rem; color: var(--text); line-height: 1.4; font-weight: 800; transition: all 0.2s;
             text-decoration: underline;
@@ -334,8 +337,7 @@
 </script>
 
 <script>
-    // 🟢 暗号：这个变量平时是 null，但 GitHub Actions 会把数据填进去
-    const PRELOADED_DATA = [{"file": "2026-01-21-CloudCone 7.77 测评留档.md", "title": "CloudCone 7.77刀/年 测评留档", "date": "2026-01-21", "category": "VPS测评", "tags": ["CloudCone", "VPS测评", "洛杉矶", "美西"], "word_count": 1655, "content": "", "top": 1}, {"file": "2026-01-21-说说.md", "title": "说说", "date": "2026-01-21", "category": "说说", "tags": ["None"], "word_count": 68, "content": "我的第一条说说 ，也是我的第一个完整的手搓博客。", "top": 0}, {"file": "2026-01-21-我的第一篇文章.md", "title": "折腾不止：从零手搓这个博客的 72 小时", "date": "2026-01-21", "category": "日常", "tags": ["折腾", "博客", "碎碎念"], "word_count": 1176, "content": "", "top": 0}, {"file": "guestbook.md", "title": "guestbook", "date": "2020-01-01", "category": "默认", "tags": [], "word_count": 45, "content": "", "top": 0}];
+    const PRELOADED_DATA = null;
 
     const app = {
         posts: [],
@@ -366,12 +368,10 @@
 
         async fetchData() {
             try {
-                // 🟢 极速逻辑：如果有注入的数据，直接用，不发请求！
                 if (PRELOADED_DATA) {
                     console.log("⚡️ Using preloaded data!");
                     this.posts = PRELOADED_DATA;
                 } else {
-                    // 本地开发时的后备方案
                     const res = await fetch('./posts.json'); 
                     this.posts = await res.json();
                 }
@@ -482,7 +482,6 @@
             c.innerHTML = '';
             const cats = {};
             this.posts.forEach(p => {
-                // 🟢 修复：分类页不显示说说
                 if (p.category === '说说') return;
                 const cat = p.category || '默认分类';
                 if(!cats[cat]) cats[cat]=[];
