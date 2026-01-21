@@ -20,37 +20,77 @@ jobs:
         with:
           python-version: '3.9'
 
-      - name: Generate JSON with Word Count
+      - name: Install Dependencies
+        run: pip install pyyaml
+
+      - name: Generate JSON
         run: |
           python3 -c "
-          import os, json, re
+          import os, json, re, yaml, datetime
+
+          POSTS_DIR = 'posts'
+          OUTPUT_FILE = 'posts.json'
           posts = []
-          if os.path.exists('posts'):
-              for f in os.listdir('posts'):
+
+          print(f'Scanning directory: {POSTS_DIR}')
+
+          if os.path.exists(POSTS_DIR):
+              for f in os.listdir(POSTS_DIR):
                   if f.endswith('.md'):
-                      # 解析日期和标题
-                      match = re.match(r'(\d{4}-\d{2}-\d{2})-(.+)\.md', f)
-                      date = match.group(1) if match else 'Unknown'
-                      title = match.group(2) if match else f.replace('.md', '')
+                      filepath = os.path.join(POSTS_DIR, f)
+                      print(f'Processing file: {f}')
                       
-                      # 计算字数
-                      with open(os.path.join('posts', f), 'r', encoding='utf-8') as file:
-                          content = file.read()
-                          word_count = len(content)
-                      
-                      posts.append({
-                          'title': title, 
-                          'date': date, 
-                          'file': f, 
-                          'words': word_count
-                      })
-          
-          # 按日期排序
-          posts.sort(key=lambda x: x['date'], reverse=True)
-          
-          with open('posts.json', 'w', encoding='utf-8') as out:
+                      try:
+                          # 默认元数据
+                          metadata = {
+                              'title': f.replace('.md', ''),
+                              'date': '2020-01-01', # 默认日期，防止排序报错
+                              'category': '日常',
+                              'tags': [],
+                              'file': f
+                          }
+
+                          # 1. 尝试从文件名提取日期 (YYYY-MM-DD-标题.md)
+                          # 即使有 Front Matter，如果文件名有日期，优先用文件名的日期排序
+                          filename_match = re.match(r'(\d{4}-\d{2}-\d{2})-(.+)\.md', f)
+                          if filename_match:
+                              metadata['date'] = filename_match.group(1)
+                              metadata['title'] = filename_match.group(2)
+
+                          # 2. 读取文件内容解析 Front Matter
+                          with open(filepath, 'r', encoding='utf-8') as file:
+                              content = file.read()
+                              
+                              # 使用 PyYAML 解析 --- 之间的内容，更加稳定
+                              front_matter_match = re.search(r'^---\s+(.*?)\s+---', content, re.DOTALL)
+                              if front_matter_match:
+                                  try:
+                                      yaml_content = yaml.safe_load(front_matter_match.group(1))
+                                      if isinstance(yaml_content, dict):
+                                          # 更新元数据，如果 YAML 里有就覆盖，没有就用默认
+                                          if 'title' in yaml_content: metadata['title'] = str(yaml_content['title'])
+                                          if 'date' in yaml_content: metadata['date'] = str(yaml_content['date'])
+                                          if 'category' in yaml_content: metadata['category'] = str(yaml_content['category'])
+                                          if 'tags' in yaml_content: 
+                                              # 确保 tags 是列表
+                                              tags = yaml_content['tags']
+                                              if isinstance(tags, str): tags = [tags]
+                                              metadata['tags'] = tags
+                                  except Exception as e:
+                                      print(f'  [WARN] YAML parse error in {f}: {e}')
+
+                          posts.append(metadata)
+                          print(f'  -> Added: {metadata[\'title\']}')
+
+                      except Exception as e:
+                          print(f'  [ERROR] Failed to process {f}: {e}')
+
+          # 按日期倒序排序
+          posts.sort(key=lambda x: str(x['date']), reverse=True)
+
+          with open(OUTPUT_FILE, 'w', encoding='utf-8') as out:
               json.dump(posts, out, ensure_ascii=False)
-          print('JSON Generated')
+          print(f'Successfully generated {OUTPUT_FILE} with {len(posts)} posts.')
           "
 
       - name: Commit and Push
@@ -58,5 +98,5 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add posts.json
-          git commit -m "Auto update posts.json" || echo "No changes to commit"
+          git commit -m "Auto update metadata" || echo "No changes to commit"
           git push
