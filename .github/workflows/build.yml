@@ -23,6 +23,7 @@ jobs:
       - name: Install dependencies
         run: pip install pyyaml
 
+      # 1. 生成 JSON 数据 (含权重逻辑)
       - name: Generate JSON
         run: |
           python3 -c "
@@ -44,10 +45,11 @@ jobs:
                           'category': '默认',
                           'tags': [],
                           'word_count': 0,
-                          'content': '' # 默认为空，减少体积
+                          'content': '',
+                          'top': 0  # 默认权重为 0
                       }
 
-                      # 提取日期
+                      # 提取文件名里的日期
                       match = re.match(r'(\d{4}-\d{2}-\d{2})-(.+)\.md', f)
                       if match:
                           item['date'] = match.group(1)
@@ -57,11 +59,11 @@ jobs:
                           with open(filepath, 'r', encoding='utf-8') as file:
                               file_content = file.read()
                               
-                              # 1. 统计字数
+                              # 统计字数
                               clean_text = re.sub(r'\s+', '', file_content)
                               item['word_count'] = len(clean_text)
 
-                              # 2. 解析 Front Matter
+                              # 解析 Front Matter
                               fm = re.search(r'^---\s*\n(.*?)\n---', file_content, re.DOTALL)
                               if fm:
                                   meta = yaml.safe_load(fm.group(1))
@@ -70,10 +72,11 @@ jobs:
                                       if 'date' in meta: item['date'] = str(meta['date'])
                                       if 'category' in meta: item['category'] = str(meta['category'])
                                       if 'tags' in meta: item['tags'] = meta['tags'] if isinstance(meta['tags'], list) else [str(meta['tags'])]
+                                      # 🟢 关键：读取权重
+                                      if 'top' in meta: item['top'] = int(meta['top'])
                               
-                              # 3. 关键逻辑：如果是'说说'，则保存内容以便直接展示
+                              # 说说内容提取
                               if item['category'] == '说说':
-                                  # 去除 Front Matter，只保留正文
                                   real_content = re.sub(r'^---\s*\n(.*?)\n---', '', file_content, flags=re.DOTALL).strip()
                                   item['content'] = real_content
 
@@ -82,16 +85,21 @@ jobs:
 
                       posts.append(item)
 
-          posts.sort(key=lambda x: str(x['date']), reverse=True)
+          # 🟢 终极排序逻辑：
+          # 1. 先看 top 权重 (大的在上面)
+          # 2. 权重一样，再看 date 日期 (新的在上面)
+          # 3. 日期一样，再看 file 文件名 (倒序，保证新创建的 md 在上面)
+          posts.sort(key=lambda x: (x.get('top', 0), str(x['date']), x['file']), reverse=True)
 
           with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
               json.dump(posts, f, ensure_ascii=False)
           "
 
+      # 2. 提交代码
       - name: Commit and Push
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add posts.json
-          git commit -m "Update posts" || echo "No changes"
+          git commit -m "Update posts with sorting" || echo "No changes"
           git push
