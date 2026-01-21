@@ -16,10 +16,12 @@
             --text-sub: #95a5a6;
             --accent: #2ecc71;
             --border: #eeeeee;
-            --menu-bg: rgba(255, 255, 255, 0.85); /* 增加透明度给悬浮栏用 */
+            --menu-bg: rgba(255, 255, 255, 0.85);
             --waline-theme-color: var(--accent) !important;
             --waline-active-color: #27ae60 !important;
             --shadow: 0 8px 30px rgba(0,0,0,0.08);
+            --code-bg: #f6f8fa;
+            --tag-bg: #f0f2f5;
         }
 
         [data-theme="dark"] {
@@ -34,6 +36,8 @@
             --waline-border-color: #444 !important;
             --waline-text-color: #eee !important;
             --shadow: 0 8px 30px rgba(0,0,0,0.5);
+            --code-bg: #2d2d2d;
+            --tag-bg: #333;
         }
 
         body {
@@ -47,16 +51,17 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        .container {
-            max-width: 700px;
-            margin: 0 auto;
-            padding: 100px 20px 100px; /* 顶部留白加大，防止挡住内容 */
-            min-height: 100vh;
-        }
+        /* 强制覆盖 Markdown 背景 */
+        [data-theme="dark"] .markdown-body { background-color: transparent !important; color: var(--text) !important; }
+        [data-theme="dark"] .markdown-body pre, [data-theme="dark"] .markdown-body code { background-color: var(--code-bg) !important; color: #e0e0e0 !important; }
+        [data-theme="dark"] .markdown-body table tr { background-color: var(--bg) !important; }
+        [data-theme="dark"] .markdown-body table tr:nth-child(2n) { background-color: #252525 !important; }
 
-        /* --- 导航栏逻辑 --- */
+        .container { max-width: 700px; margin: 0 auto; padding: 100px 20px 100px; min-height: 100vh; }
 
-        /* 1. 手机端侧滑菜单 (默认样式) */
+        /* ================= 核心布局逻辑 (勿动) ================= */
+        
+        /* 1. 默认状态 (手机优先)：显示侧边栏结构，隐藏电脑悬浮栏 */
         #sidebar {
             position: fixed; top: 0; right: -280px; width: 280px; height: 100%;
             background: var(--bg); z-index: 2000; padding: 30px;
@@ -73,73 +78,46 @@
         }
         #overlay.active { display: block; opacity: 1; }
 
-        /* 2. 电脑端顶部悬浮栏 (默认隐藏) */
-        #desktop-nav { display: none; }
+        #desktop-nav { display: none; } /* 默认隐藏电脑导航 */
+        #mobile-menu-btn { display: block; } /* 默认显示汉堡菜单 */
 
-        /* 3. Header 区域 (Logo + 按钮) */
-        header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 50px;
+        /* 2. 电脑状态 (屏幕 > 768px) */
+        @media (min-width: 768px) {
+            /* 强制隐藏侧边栏和遮罩，防止误触 */
+            #sidebar { display: none !important; } 
+            #overlay { display: none !important; }
+            
+            /* 隐藏汉堡菜单 */
+            #mobile-menu-btn { display: none !important; }
+
+            /* 显示悬浮导航 */
+            #desktop-nav {
+                display: flex; position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+                background: var(--menu-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+                padding: 0 30px; height: 50px; align-items: center; gap: 30px;
+                border-radius: 50px; border: 1px solid var(--border); box-shadow: var(--shadow); z-index: 1000;
+            }
         }
+        /* ====================================================== */
+
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 50px; }
         .header-left { display: flex; align-items: center; gap: 15px; cursor: pointer; }
         .avatar { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--border); }
         .site-title { font-weight: 800; font-size: 1.2rem; letter-spacing: 0.5px; }
         .header-actions { display: flex; gap: 15px; align-items: center; }
         .icon-btn { font-size: 1.2rem; color: var(--text); background: none; border: none; padding: 5px; cursor: pointer; }
         
-        /* --- 响应式核心媒体查询 --- */
-        @media (min-width: 768px) {
-            /* 电脑端：隐藏汉堡菜单按钮 */
-            #mobile-menu-btn { display: none !important; }
-            
-            /* 电脑端：显示顶部悬浮导航 */
-            #desktop-nav {
-                display: flex;
-                position: fixed;
-                top: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                background: var(--menu-bg);
-                backdrop-filter: blur(12px); /* 毛玻璃效果 */
-                -webkit-backdrop-filter: blur(12px);
-                padding: 0 30px;
-                height: 50px;
-                align-items: center;
-                gap: 30px;
-                border-radius: 50px; /* 药丸形状 */
-                border: 1px solid var(--border);
-                box-shadow: var(--shadow);
-                z-index: 1000;
-                transition: all 0.3s;
-            }
-            
-            #desktop-nav a {
-                text-decoration: none;
-                color: var(--text);
-                font-size: 0.95rem;
-                font-weight: 600;
-                transition: color 0.2s;
-                position: relative;
-            }
-            
-            #desktop-nav a:hover { color: var(--accent); }
-            
-            /* 悬浮时的下划线动画 */
-            #desktop-nav a::after {
-                content: ''; position: absolute; bottom: -5px; left: 50%; width: 0; height: 2px;
-                background: var(--accent); transition: all 0.3s; transform: translateX(-50%);
-            }
-            #desktop-nav a:hover::after { width: 100%; }
-        }
+        #desktop-nav a { text-decoration: none; color: var(--text); font-size: 0.95rem; font-weight: 600; transition: color 0.2s; position: relative; }
+        #desktop-nav a:hover { color: var(--accent); }
+        #desktop-nav a::after { content: ''; position: absolute; bottom: -5px; left: 50%; width: 0; height: 2px; background: var(--accent); transition: all 0.3s; transform: translateX(-50%); }
+        #desktop-nav a:hover::after { width: 100%; }
 
-        /* 通用菜单链接样式 (侧滑栏用) */
         .menu-link {
             font-size: 1.1rem; color: var(--text); text-decoration: none; font-weight: 600;
             display: flex; align-items: center; gap: 15px; padding: 10px 0;
             border-bottom: 1px solid var(--border);
         }
 
-        /* Views */
         .intro-box { margin-bottom: 40px; }
         .countdown { font-family: monospace; font-weight: bold; color: var(--accent); margin-top: 8px;}
         .social-icons { margin-top: 15px; display: flex; gap: 15px; font-size: 1.2rem; }
@@ -148,26 +126,28 @@
 
         .section-header { font-size: 1.5rem; font-weight: 900; color: var(--accent); margin: 40px 0 25px; }
 
-        /* Post List */
-        .post-list { display: flex; flex-direction: column; gap: 25px; }
-        .post-item { cursor: pointer; transition: transform 0.2s; }
+        .post-list { display: flex; flex-direction: column; gap: 30px; }
+        .post-item { cursor: pointer; transition: transform 0.2s; display: flex; flex-direction: column; gap: 5px; }
         .post-item:hover { transform: translateX(5px); }
-        .post-date { font-size: 0.8rem; color: var(--text-sub); margin-bottom: 4px; font-family: monospace; }
-        .post-title { font-size: 1.1rem; border-bottom: 1px solid var(--text); padding-bottom: 2px; display: inline-block; line-height: 1.4; }
-        .post-title:hover { color: var(--accent); border-color: var(--accent); }
+        .post-meta { display: flex; gap: 10px; font-size: 0.8rem; color: var(--text-sub); font-family: monospace; align-items: center;}
+        .post-title { font-size: 1.15rem; font-weight: bold; color: var(--text); line-height: 1.4; }
+        .post-title:hover { color: var(--accent); }
+        
+        .tag-pill { background: var(--tag-bg); padding: 1px 6px; border-radius: 4px; font-size: 0.75rem; color: var(--text-sub); margin-right: 5px; transition: all 0.2s;}
+        .tag-pill:hover { background: var(--accent); color: white; }
 
-        /* Archive & Category Styles */
         .archive-year { font-size: 1.5rem; font-weight: bold; margin: 30px 0 15px; color: var(--text); border-left: 4px solid var(--accent); padding-left: 10px; }
         .archive-item { display: flex; gap: 15px; margin-bottom: 15px; align-items: baseline; }
         .archive-date { font-family: monospace; color: var(--text-sub); min-width: 60px; }
         .archive-link { text-decoration: none; color: var(--text); border-bottom: 1px dashed var(--text-sub); }
         .archive-link:hover { color: var(--accent); border-color: var(--accent); }
 
-        /* Waline Editor Fix */
+        .cat-group { margin-bottom: 30px; }
+        .cat-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 15px; color: var(--text); display: flex; align-items: center; gap: 8px;}
+
         #waline { margin-top: 60px; }
         .wl-editor { min-height: 150px !important; padding: 15px !important; }
 
-        /* Footer */
         footer { margin-top: 80px; text-align: center; font-size: 0.8rem; color: var(--text-sub); border-top: 1px solid var(--border); padding-top: 25px; }
 
         .hidden { display: none !important; }
@@ -293,15 +273,14 @@
 
         async fetchData() {
             try {
-                const res = await fetch('./posts.json?t=' + Date.now());
+                // 🔴 缓存克星：每次都加随机数，强制更新
+                const res = await fetch('./posts.json?t=' + Date.now() + Math.random());
                 if(!res.ok) throw new Error();
                 const data = await res.json();
                 
-                // --- 🔴 BUG 修复区 ---
-                // 过滤掉 guestbook.md，不让它显示在列表里
-                this.posts = data.filter(p => p.file.toLowerCase() !== 'guestbook.md');
-                // --------------------
-
+                // 过滤掉 guestbook.md
+                this.posts = data.filter(p => !p.file.toLowerCase().includes('guestbook'));
+                
                 this.renderList();
                 this.handleRoute(); 
             } catch(e) {
@@ -316,7 +295,19 @@
                 const div = document.createElement('div');
                 div.className = 'post-item';
                 div.onclick = () => location.hash = p.file;
-                div.innerHTML = `<div class="post-date">${p.date}</div><div class="post-title">${p.title}</div>`;
+                
+                let tagsHtml = '';
+                if(p.tags && Array.isArray(p.tags)) {
+                    p.tags.forEach(t => tagsHtml += `<span class="tag-pill">#${t}</span>`);
+                }
+                
+                div.innerHTML = `
+                    <div class="post-title">${p.title}</div>
+                    <div class="post-meta">
+                        <span>${p.date}</span>
+                        ${tagsHtml ? '<span style="color:var(--border)">|</span>' + tagsHtml : ''}
+                    </div>
+                `;
                 c.appendChild(div);
             });
         },
@@ -352,15 +343,29 @@
             document.getElementById('archive-view').classList.remove('hidden');
             document.getElementById('archive-title').innerText = "分类";
             const c = document.getElementById('archive-content');
-            let html = `<div class="archive-year"><i class="fa-solid fa-folder-open"></i> 默认分类</div>`;
+            c.innerHTML = '';
+
+            const cats = {};
             this.posts.forEach(p => {
-                html += `
-                    <div class="archive-item">
-                        <span class="archive-date">${p.date}</span>
-                        <a href="#${p.file}" class="archive-link">${p.title}</a>
-                    </div>`;
+                const catName = p.category || '日常';
+                if(!cats[catName]) cats[catName] = [];
+                cats[catName].push(p);
             });
-            c.innerHTML = html;
+
+            Object.keys(cats).forEach(cat => {
+                let html = `
+                <div class="cat-group">
+                    <div class="cat-title"><i class="fa-solid fa-folder"></i> ${cat}</div>`;
+                cats[cat].forEach(p => {
+                    html += `
+                        <div class="archive-item">
+                            <span class="archive-date">${p.date}</span>
+                            <a href="#${p.file}" class="archive-link">${p.title}</a>
+                        </div>`;
+                });
+                html += `</div>`;
+                c.innerHTML += html;
+            });
         },
 
         async renderPost(file) {
