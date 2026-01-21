@@ -1,4 +1,4 @@
-# 🌸 Higan-Static (聂.net 博客系统)
+# 🌸 Higan-Static (聶.NET 博客系统)
 
 这是一个基于 **GitHub Pages + GitHub Actions** 的超轻量级静态博客系统。
 无需服务器（除非你需要评论后端），无需复杂的 Hexo/Hugo 构建环境，**仅需一个 HTML 文件**即可运行。
