@@ -8,6 +8,7 @@
     <link rel="dns-prefetch" href="//npm.elemecdn.com">
     <link rel="dns-prefetch" href="//cdn.staticfile.org">
     <link rel="dns-prefetch" href="//fonts.loli.net">
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
 
     <link rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/5.2.0/github-markdown-light.min.css">
     <link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.4.2/css/all.min.css">
@@ -24,11 +25,8 @@
             --menu-bg: rgba(255, 255, 255, 0.98);
             --tag-bg: #f8fafc;
             --float-btn-bg: #ffffff;
+            --status-bg: #f7f9fa;
             
-            /* Status Card Colors */
-            --status-bg: #f7f9fa; /* 说说气泡背景 */
-            
-            /* Waline Override */
             --waline-theme-color: var(--accent) !important;
             --waline-active-color: #2c3e50 !important;
             --waline-bgcolor: #ffffff !important;
@@ -119,7 +117,7 @@
             border-bottom: 1px dashed var(--border);
         }
 
-        /* Content & List */
+        /* Content */
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
         .cursor { display: inline-block; width: 10px; height: 2px; background: var(--accent); animation: blink 1s step-end infinite; margin-left: 5px; vertical-align: middle; }
         .intro-text { font-size: 1.15rem; margin-bottom: 25px; color: var(--text); font-weight: 700;}
@@ -149,35 +147,15 @@
         }
         .tag-pill:hover { background: var(--accent); color: white; }
 
-        /* 🟢 “说说”样式 (仿QQ/朋友圈) */
-        .status-item {
-            display: flex; gap: 15px; margin-bottom: 30px;
-        }
-        .status-avatar {
-            width: 45px; height: 45px; border-radius: 50%; object-fit: cover; flex-shrink: 0;
-            border: 1px solid var(--border);
-        }
+        /* Status Style */
+        .status-item { display: flex; gap: 15px; margin-bottom: 30px; }
+        .status-avatar { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 1px solid var(--border); }
         .status-main { flex: 1; }
         .status-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
         .status-name { font-weight: 800; font-size: 1rem; color: var(--text); }
         .status-time { font-size: 0.85rem; color: var(--text-sub); font-weight: 600; }
-        
-        .status-card {
-            background: var(--status-bg);
-            padding: 15px 20px;
-            border-radius: 12px;
-            position: relative;
-            font-size: 1rem;
-            color: var(--text);
-            line-height: 1.6;
-        }
-        /* 气泡小三角 */
-        .status-card::before {
-            content: ''; position: absolute; top: 15px; left: -8px;
-            width: 0; height: 0;
-            border-top: 8px solid transparent; border-bottom: 8px solid transparent;
-            border-right: 8px solid var(--status-bg);
-        }
+        .status-card { background: var(--status-bg); padding: 15px 20px; border-radius: 12px; position: relative; font-size: 1rem; color: var(--text); line-height: 1.6; }
+        .status-card::before { content: ''; position: absolute; top: 15px; left: -8px; width: 0; height: 0; border-top: 8px solid transparent; border-bottom: 8px solid transparent; border-right: 8px solid var(--status-bg); }
         .status-actions { margin-top: 10px; display: flex; gap: 20px; }
         .status-btn { font-size: 0.9rem; color: var(--text-sub); cursor: pointer; display: flex; align-items: center; gap: 5px; transition: color 0.2s; }
         .status-btn:hover { color: var(--accent); }
@@ -187,10 +165,7 @@
         
         /* Waline & Utils */
         #custom-toolbar { display: flex; gap: 5px; margin-bottom: 10px; flex-wrap: wrap; }
-        .toolbar-btn {
-            background: var(--tag-bg); border: none; padding: 5px 12px; border-radius: 8px; 
-            cursor: pointer; color: var(--text-sub); font-size: 0.9rem; font-weight: bold; transition: all 0.2s;
-        }
+        .toolbar-btn { background: var(--tag-bg); border: none; padding: 5px 12px; border-radius: 8px; cursor: pointer; color: var(--text-sub); font-size: 0.9rem; font-weight: bold; transition: all 0.2s; }
         .toolbar-btn:hover { background: var(--accent); color: white; }
         #waline { margin-top: 50px; }
         .wl-editor { width: 100% !important; box-sizing: border-box !important; min-height: 120px; border-radius: 12px !important; padding: 15px !important; resize: vertical !important; margin-bottom: 10px; }
@@ -339,9 +314,8 @@
 
 <script src="https://cdn.staticfile.org/marked/9.1.2/marked.min.js"></script>
 <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
 <script type="module">
-    <script type="module">
-    // 🟢 核心修复：换用 JSDelivr 官方源，解决 403 问题
     import { init } from 'https://cdn.jsdelivr.net/npm/@waline/client@v2/dist/waline.mjs';
     
     window.loadWaline = function(path) {
@@ -351,7 +325,6 @@
             serverURL: 'https://waline-comment-seven-beta.vercel.app', 
             path: path,
             dark: 'body[data-theme="dark"]',
-            // 🟢 Emoji 也建议换成 JSDelivr，防止那个也挂掉
             emoji: ['//cdn.jsdelivr.net/npm/@waline/emojis@1.1.0/weibo'],
             login: 'enable',
             search: false, 
