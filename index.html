@@ -16,9 +16,12 @@
             --text-sub: #95a5a6;
             --accent: #2ecc71;
             --border: #eeeeee;
-            --menu-bg: rgba(255, 255, 255, 0.98);
+            --menu-bg: rgba(255, 255, 255, 0.85);
             --waline-theme-color: var(--accent) !important;
             --waline-active-color: #27ae60 !important;
+            --shadow: 0 8px 30px rgba(0,0,0,0.08);
+            --code-bg: #f6f8fa;
+            --tag-bg: #f0f2f5;
         }
 
         [data-theme="dark"] {
@@ -27,11 +30,14 @@
             --text-sub: #a0a0a0;
             --accent: #4cd137;
             --border: #333333;
-            --menu-bg: rgba(28, 28, 28, 0.98);
+            --menu-bg: rgba(28, 28, 28, 0.85);
             --waline-bgcolor: #252525 !important; 
             --waline-bgcolor-light: #303030 !important;
             --waline-border-color: #444 !important;
             --waline-text-color: #eee !important;
+            --shadow: 0 8px 30px rgba(0,0,0,0.5);
+            --code-bg: #2d2d2d;
+            --tag-bg: #333;
         }
 
         body {
@@ -45,33 +51,18 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        .container {
-            max-width: 680px;
-            margin: 0 auto;
-            padding: 40px 20px 100px;
-            min-height: 100vh;
-        }
+        /* Dark Mode Fixes */
+        [data-theme="dark"] .markdown-body { background-color: transparent !important; color: var(--text) !important; }
+        [data-theme="dark"] .markdown-body pre, [data-theme="dark"] .markdown-body code { background-color: var(--code-bg) !important; color: #e0e0e0 !important; }
+        [data-theme="dark"] .markdown-body table tr { background-color: var(--bg) !important; }
+        [data-theme="dark"] .markdown-body table tr:nth-child(2n) { background-color: #252525 !important; }
 
-        /* Header */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 50px;
-            padding-bottom: 15px;
-            border-bottom: 1px dashed var(--border);
-        }
+        .container { max-width: 700px; margin: 0 auto; padding: 100px 20px 100px; min-height: 100vh; }
 
-        .header-left { display: flex; align-items: center; gap: 15px; cursor: pointer; }
-        .avatar { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--border); }
-        .site-title { font-weight: 800; font-size: 1.2rem; letter-spacing: 0.5px; }
-        .header-actions { display: flex; gap: 18px; align-items: center; }
-        .icon-btn { font-size: 1.2rem; color: var(--text); background: none; border: none; padding: 5px; cursor: pointer; }
-
-        /* Sidebar */
+        /* Navigation */
         #sidebar {
             position: fixed; top: 0; right: -280px; width: 280px; height: 100%;
-            background: var(--menu-bg); z-index: 2000; padding: 30px;
+            background: var(--bg); z-index: 2000; padding: 30px;
             transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex; flex-direction: column; gap: 20px;
             box-shadow: -5px 0 20px rgba(0,0,0,0.1);
@@ -85,6 +76,29 @@
         }
         #overlay.active { display: block; opacity: 1; }
 
+        #desktop-nav { display: none; }
+
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 50px; }
+        .header-left { display: flex; align-items: center; gap: 15px; cursor: pointer; }
+        .avatar { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--border); }
+        .site-title { font-weight: 800; font-size: 1.2rem; letter-spacing: 0.5px; }
+        .header-actions { display: flex; gap: 15px; align-items: center; }
+        .icon-btn { font-size: 1.2rem; color: var(--text); background: none; border: none; padding: 5px; cursor: pointer; }
+        
+        @media (min-width: 768px) {
+            #mobile-menu-btn { display: none !important; }
+            #desktop-nav {
+                display: flex; position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+                background: var(--menu-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+                padding: 0 30px; height: 50px; align-items: center; gap: 30px;
+                border-radius: 50px; border: 1px solid var(--border); box-shadow: var(--shadow); z-index: 1000;
+            }
+            #desktop-nav a { text-decoration: none; color: var(--text); font-size: 0.95rem; font-weight: 600; transition: color 0.2s; position: relative; }
+            #desktop-nav a:hover { color: var(--accent); }
+            #desktop-nav a::after { content: ''; position: absolute; bottom: -5px; left: 50%; width: 0; height: 2px; background: var(--accent); transition: all 0.3s; transform: translateX(-50%); }
+            #desktop-nav a:hover::after { width: 100%; }
+        }
+
         .menu-link {
             font-size: 1.1rem; color: var(--text); text-decoration: none; font-weight: 600;
             display: flex; align-items: center; gap: 15px; padding: 10px 0;
@@ -95,28 +109,38 @@
         .intro-box { margin-bottom: 40px; }
         .countdown { font-family: monospace; font-weight: bold; color: var(--accent); margin-top: 8px;}
         .social-icons { margin-top: 15px; display: flex; gap: 15px; font-size: 1.2rem; }
-        .social-icons a { color: var(--text-sub); }
+        .social-icons a { color: var(--text-sub); transition: color 0.3s;}
+        .social-icons a:hover { color: var(--accent); }
 
         .section-header { font-size: 1.5rem; font-weight: 900; color: var(--accent); margin: 40px 0 25px; }
 
-        /* Post List */
-        .post-list { display: flex; flex-direction: column; gap: 25px; }
-        .post-item { cursor: pointer; }
-        .post-date { font-size: 0.8rem; color: var(--text-sub); margin-bottom: 4px; font-family: monospace; }
-        .post-title { font-size: 1.1rem; border-bottom: 1px solid var(--text); padding-bottom: 2px; display: inline-block; line-height: 1.4; }
+        .post-list { display: flex; flex-direction: column; gap: 30px; }
+        .post-item { cursor: pointer; transition: transform 0.2s; display: flex; flex-direction: column; gap: 5px; }
+        .post-item:hover { transform: translateX(5px); }
+        .post-meta { display: flex; gap: 10px; font-size: 0.8rem; color: var(--text-sub); font-family: monospace; align-items: center;}
+        .post-title { font-size: 1.15rem; font-weight: bold; color: var(--text); line-height: 1.4; }
+        .post-title:hover { color: var(--accent); }
+        
+        /* 标签样式 */
+        .tag-pill { 
+            background: var(--tag-bg); padding: 1px 6px; border-radius: 4px; font-size: 0.75rem; 
+            color: var(--text-sub); margin-right: 5px; transition: all 0.2s;
+        }
+        .tag-pill:hover { background: var(--accent); color: white; }
 
-        /* Archive & Category Styles */
         .archive-year { font-size: 1.5rem; font-weight: bold; margin: 30px 0 15px; color: var(--text); border-left: 4px solid var(--accent); padding-left: 10px; }
         .archive-item { display: flex; gap: 15px; margin-bottom: 15px; align-items: baseline; }
         .archive-date { font-family: monospace; color: var(--text-sub); min-width: 60px; }
         .archive-link { text-decoration: none; color: var(--text); border-bottom: 1px dashed var(--text-sub); }
+        .archive-link:hover { color: var(--accent); border-color: var(--accent); }
 
-        /* Waline Editor Fix */
+        /* Category Group */
+        .cat-group { margin-bottom: 30px; }
+        .cat-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 15px; color: var(--text); display: flex; align-items: center; gap: 8px;}
+
         #waline { margin-top: 60px; }
         .wl-editor { min-height: 150px !important; padding: 15px !important; }
-        .wl-action { font-size: 16px !important; }
 
-        /* Footer */
         footer { margin-top: 80px; text-align: center; font-size: 0.8rem; color: var(--text-sub); border-top: 1px solid var(--border); padding-top: 25px; }
 
         .hidden { display: none !important; }
@@ -136,6 +160,14 @@
     <a href="https://status.nkx.moe" target="_blank" class="menu-link"><i class="fa-solid fa-server"></i> 站点状态</a>
 </nav>
 
+<nav id="desktop-nav">
+    <a href="#" onclick="app.goHome()">首页</a>
+    <a href="#category">分类</a>
+    <a href="#archive">归档</a>
+    <a href="#guestbook.md">留言板</a>
+    <a href="https://status.nkx.moe" target="_blank">状态</a>
+</nav>
+
 <div class="container">
     <header>
         <div class="header-left" onclick="app.goHome()">
@@ -144,7 +176,7 @@
         </div>
         <div class="header-actions">
             <button class="icon-btn" onclick="app.toggleTheme()"><i id="theme-icon" class="fa-solid fa-sun"></i></button>
-            <button class="icon-btn" onclick="app.toggleMenu()"><i class="fa-solid fa-bars"></i></button>
+            <button id="mobile-menu-btn" class="icon-btn" onclick="app.toggleMenu()"><i class="fa-solid fa-bars"></i></button>
         </div>
     </header>
 
@@ -195,7 +227,7 @@
         document.getElementById('waline').innerHTML = '';
         walineInstance = init({
             el: '#waline',
-            serverURL: 'https://waline.vercel.app', // 记得换成你自己的！
+            serverURL: 'https://waline.vercel.app', 
             path: path,
             dark: 'body[data-theme="dark"]',
             emoji: ['//unpkg.com/@waline/emojis@1.1.0/weibo'],
@@ -235,9 +267,9 @@
             try {
                 const res = await fetch('./posts.json?t=' + Date.now());
                 if(!res.ok) throw new Error();
-                this.posts = await res.json();
+                const data = await res.json();
+                this.posts = data.filter(p => !p.file.toLowerCase().includes('guestbook'));
                 this.renderList();
-                // 如果当前就在非首页路由，数据加载完需要刷新一下界面
                 this.handleRoute(); 
             } catch(e) {
                 document.getElementById('posts-container').innerHTML = "暂无文章";
@@ -251,32 +283,39 @@
                 const div = document.createElement('div');
                 div.className = 'post-item';
                 div.onclick = () => location.hash = p.file;
-                div.innerHTML = `<div class="post-date">${p.date}</div><div class="post-title">${p.title}</div>`;
+                
+                // 渲染标签
+                let tagsHtml = '';
+                if(p.tags && Array.isArray(p.tags)) {
+                    p.tags.forEach(t => tagsHtml += `<span class="tag-pill">#${t}</span>`);
+                }
+                
+                div.innerHTML = `
+                    <div class="post-title">${p.title}</div>
+                    <div class="post-meta">
+                        <span>${p.date}</span>
+                        ${tagsHtml ? '<span style="color:#ddd">|</span>' + tagsHtml : ''}
+                    </div>
+                `;
                 c.appendChild(div);
             });
         },
 
-        // 渲染归档 (按年份分组)
         renderArchive() {
             this.hideAll();
             document.getElementById('archive-view').classList.remove('hidden');
             document.getElementById('archive-title').innerText = "归档";
             const c = document.getElementById('archive-content');
             c.innerHTML = '';
-
-            // 按年份分组逻辑
             const groups = {};
             this.posts.forEach(p => {
-                const year = p.date.substring(0, 4); // 提取 2026
+                const year = p.date.substring(0, 4);
                 if(!groups[year]) groups[year] = [];
                 groups[year].push(p);
             });
-
-            // 渲染
             Object.keys(groups).sort().reverse().forEach(year => {
                 let html = `<div class="archive-year">${year}</div>`;
                 groups[year].forEach(p => {
-                    // 去掉日期的年份，只保留月-日
                     const shortDate = p.date.substring(5); 
                     html += `
                         <div class="archive-item">
@@ -288,23 +327,36 @@
             });
         },
 
-        // 渲染分类 (目前全部伪装成“日常”)
+        // --- 真正的动态分类 ---
         renderCategory() {
             this.hideAll();
             document.getElementById('archive-view').classList.remove('hidden');
             document.getElementById('archive-title').innerText = "分类";
             const c = document.getElementById('archive-content');
-            
-            // 简单粗暴：所有文章都放在 Default 下
-            let html = `<div class="archive-year"><i class="fa-solid fa-folder-open"></i> 默认分类</div>`;
+            c.innerHTML = '';
+
+            const cats = {};
             this.posts.forEach(p => {
-                html += `
-                    <div class="archive-item">
-                        <span class="archive-date">${p.date}</span>
-                        <a href="#${p.file}" class="archive-link">${p.title}</a>
-                    </div>`;
+                const catName = p.category || '日常'; // 默认分类
+                if(!cats[catName]) cats[catName] = [];
+                cats[catName].push(p);
             });
-            c.innerHTML = html;
+
+            Object.keys(cats).forEach(cat => {
+                let html = `
+                <div class="cat-group">
+                    <div class="cat-title"><i class="fa-solid fa-folder"></i> ${cat}</div>`;
+                
+                cats[cat].forEach(p => {
+                    html += `
+                        <div class="archive-item">
+                            <span class="archive-date">${p.date}</span>
+                            <a href="#${p.file}" class="archive-link">${p.title}</a>
+                        </div>`;
+                });
+                html += `</div>`;
+                c.innerHTML += html;
+            });
         },
 
         async renderPost(file) {
@@ -317,13 +369,12 @@
             content.innerHTML = '<div style="padding:40px 0; color:#ccc;">Loading...</div>';
             
             try {
-                // posts/guestbook.md 也是在这里加载
                 const res = await fetch(`./posts/${file}`); 
                 if(!res.ok) throw new Error("404");
                 const text = await res.text();
                 content.innerHTML = marked.parse(text);
             } catch(e) {
-                content.innerHTML = "内容不存在，请检查文件名。";
+                content.innerHTML = "内容不存在或格式错误。";
             }
         },
 
