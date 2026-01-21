@@ -16,11 +16,8 @@
             --text-sub: #95a5a6;
             --accent: #2ecc71;
             --border: #eeeeee;
-            --menu-bg: rgba(255, 255, 255, 0.85);
-            --waline-theme-color: var(--accent) !important;
-            --waline-active-color: #27ae60 !important;
-            --shadow: 0 8px 30px rgba(0,0,0,0.08);
-            --code-bg: #f6f8fa;
+            --menu-bg: rgba(255, 255, 255, 0.95);
+            --shadow: 0 4px 20px rgba(0,0,0,0.1);
             --tag-bg: #f0f2f5;
         }
 
@@ -30,13 +27,8 @@
             --text-sub: #a0a0a0;
             --accent: #4cd137;
             --border: #333333;
-            --menu-bg: rgba(28, 28, 28, 0.85);
-            --waline-bgcolor: #252525 !important; 
-            --waline-bgcolor-light: #303030 !important;
-            --waline-border-color: #444 !important;
-            --waline-text-color: #eee !important;
-            --shadow: 0 8px 30px rgba(0,0,0,0.5);
-            --code-bg: #2d2d2d;
+            --menu-bg: rgba(28, 28, 28, 0.95);
+            --shadow: 0 4px 20px rgba(0,0,0,0.5);
             --tag-bg: #333;
         }
 
@@ -47,111 +39,118 @@
             margin: 0;
             padding: 0;
             line-height: 1.6;
-            transition: background 0.3s, color 0.3s;
-            -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden; /* 禁止横向滚动 */
         }
 
-        /* 强制覆盖 Markdown 背景 */
-        [data-theme="dark"] .markdown-body { background-color: transparent !important; color: var(--text) !important; }
-        [data-theme="dark"] .markdown-body pre, [data-theme="dark"] .markdown-body code { background-color: var(--code-bg) !important; color: #e0e0e0 !important; }
-        [data-theme="dark"] .markdown-body table tr { background-color: var(--bg) !important; }
-        [data-theme="dark"] .markdown-body table tr:nth-child(2n) { background-color: #252525 !important; }
+        /* 强制覆盖 Markdown 样式 */
+        [data-theme="dark"] .markdown-body { background: transparent !important; color: var(--text) !important; }
+        [data-theme="dark"] .markdown-body pre { background: #2d2d2d !important; }
 
-        .container { max-width: 700px; margin: 0 auto; padding: 100px 20px 100px; min-height: 100vh; }
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 100px 20px 100px;
+            min-height: 100vh;
+        }
 
-        /* ================= 核心布局逻辑 (勿动) ================= */
+        /* ==================== 布局修复核心 ==================== */
         
-        /* 1. 默认状态 (手机优先)：显示侧边栏结构，隐藏电脑悬浮栏 */
+        /* 1. 手机端侧滑菜单 (默认移出屏幕) */
         #sidebar {
-            position: fixed; top: 0; right: -280px; width: 280px; height: 100%;
-            background: var(--bg); z-index: 2000; padding: 30px;
-            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex; flex-direction: column; gap: 20px;
+            position: fixed;
+            top: 0;
+            right: 0; /* 定位在右侧 */
+            width: 280px;
+            height: 100%;
+            background: var(--menu-bg);
+            z-index: 9999;
+            padding: 30px;
             box-shadow: -5px 0 20px rgba(0,0,0,0.1);
+            
+            /* 关键修复：使用 transform 移出屏幕，而不是 right: -280px */
+            transform: translateX(100%); 
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
-        #sidebar.active { right: 0; }
-        
+
+        /* 激活状态：移回屏幕 */
+        #sidebar.active {
+            transform: translateX(0);
+        }
+
+        /* 遮罩层 */
         #overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.4); z-index: 1999; display: none;
-            opacity: 0; transition: opacity 0.3s;
+            background: rgba(0,0,0,0.5); z-index: 9998;
+            display: none; opacity: 0; transition: opacity 0.3s;
         }
         #overlay.active { display: block; opacity: 1; }
 
-        #desktop-nav { display: none; } /* 默认隐藏电脑导航 */
-        #mobile-menu-btn { display: block; } /* 默认显示汉堡菜单 */
+        /* 2. 电脑端悬浮导航 (默认隐藏) */
+        #desktop-nav { display: none; }
 
-        /* 2. 电脑状态 (屏幕 > 768px) */
+        /* 3. 媒体查询 (电脑端 >= 768px) */
         @media (min-width: 768px) {
-            /* 强制隐藏侧边栏和遮罩，防止误触 */
-            #sidebar { display: none !important; } 
-            #overlay { display: none !important; }
-            
-            /* 隐藏汉堡菜单 */
+            /* 电脑上彻底隐藏手机侧边栏 */
+            #sidebar { display: none !important; }
             #mobile-menu-btn { display: none !important; }
-
-            /* 显示悬浮导航 */
+            
+            /* 电脑上显示悬浮栏 */
             #desktop-nav {
-                display: flex; position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-                background: var(--menu-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+                display: flex;
+                position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+                background: var(--menu-bg);
+                backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
                 padding: 0 30px; height: 50px; align-items: center; gap: 30px;
-                border-radius: 50px; border: 1px solid var(--border); box-shadow: var(--shadow); z-index: 1000;
+                border-radius: 50px; border: 1px solid var(--border);
+                box-shadow: var(--shadow); z-index: 1000;
             }
         }
-        /* ====================================================== */
+        /* ==================================================== */
 
+        /* Header */
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 50px; }
         .header-left { display: flex; align-items: center; gap: 15px; cursor: pointer; }
         .avatar { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--border); }
-        .site-title { font-weight: 800; font-size: 1.2rem; letter-spacing: 0.5px; }
-        .header-actions { display: flex; gap: 15px; align-items: center; }
-        .icon-btn { font-size: 1.2rem; color: var(--text); background: none; border: none; padding: 5px; cursor: pointer; }
-        
-        #desktop-nav a { text-decoration: none; color: var(--text); font-size: 0.95rem; font-weight: 600; transition: color 0.2s; position: relative; }
+        .site-title { font-weight: 800; font-size: 1.2rem; }
+        .icon-btn { font-size: 1.2rem; color: var(--text); background: none; border: none; cursor: pointer; padding: 5px; }
+
+        /* Links */
+        #desktop-nav a { text-decoration: none; color: var(--text); font-weight: 600; font-size: 0.9rem; position: relative; }
         #desktop-nav a:hover { color: var(--accent); }
-        #desktop-nav a::after { content: ''; position: absolute; bottom: -5px; left: 50%; width: 0; height: 2px; background: var(--accent); transition: all 0.3s; transform: translateX(-50%); }
-        #desktop-nav a:hover::after { width: 100%; }
+        
+        .menu-link { display: flex; align-items: center; gap: 15px; font-size: 1.1rem; color: var(--text); text-decoration: none; font-weight: bold; padding: 10px 0; border-bottom: 1px solid var(--border); }
 
-        .menu-link {
-            font-size: 1.1rem; color: var(--text); text-decoration: none; font-weight: 600;
-            display: flex; align-items: center; gap: 15px; padding: 10px 0;
-            border-bottom: 1px solid var(--border);
-        }
-
+        /* Content */
         .intro-box { margin-bottom: 40px; }
         .countdown { font-family: monospace; font-weight: bold; color: var(--accent); margin-top: 8px;}
-        .social-icons { margin-top: 15px; display: flex; gap: 15px; font-size: 1.2rem; }
-        .social-icons a { color: var(--text-sub); transition: color 0.3s;}
-        .social-icons a:hover { color: var(--accent); }
-
         .section-header { font-size: 1.5rem; font-weight: 900; color: var(--accent); margin: 40px 0 25px; }
 
-        .post-list { display: flex; flex-direction: column; gap: 30px; }
-        .post-item { cursor: pointer; transition: transform 0.2s; display: flex; flex-direction: column; gap: 5px; }
+        .post-list { display: flex; flex-direction: column; gap: 25px; }
+        .post-item { cursor: pointer; transition: transform 0.2s; }
         .post-item:hover { transform: translateX(5px); }
-        .post-meta { display: flex; gap: 10px; font-size: 0.8rem; color: var(--text-sub); font-family: monospace; align-items: center;}
-        .post-title { font-size: 1.15rem; font-weight: bold; color: var(--text); line-height: 1.4; }
-        .post-title:hover { color: var(--accent); }
-        
-        .tag-pill { background: var(--tag-bg); padding: 1px 6px; border-radius: 4px; font-size: 0.75rem; color: var(--text-sub); margin-right: 5px; transition: all 0.2s;}
-        .tag-pill:hover { background: var(--accent); color: white; }
+        .post-title { font-size: 1.1rem; font-weight: bold; border-bottom: 1px solid var(--border); padding-bottom: 2px; }
+        .post-meta { font-size: 0.8rem; color: var(--text-sub); margin-bottom: 4px; font-family: monospace; }
+        .tag-pill { background: var(--tag-bg); padding: 1px 6px; border-radius: 4px; font-size: 0.75rem; color: var(--text-sub); margin-left: 8px;}
 
-        .archive-year { font-size: 1.5rem; font-weight: bold; margin: 30px 0 15px; color: var(--text); border-left: 4px solid var(--accent); padding-left: 10px; }
-        .archive-item { display: flex; gap: 15px; margin-bottom: 15px; align-items: baseline; }
-        .archive-date { font-family: monospace; color: var(--text-sub); min-width: 60px; }
-        .archive-link { text-decoration: none; color: var(--text); border-bottom: 1px dashed var(--text-sub); }
-        .archive-link:hover { color: var(--accent); border-color: var(--accent); }
+        /* Archives */
+        .archive-year { font-size: 1.5rem; font-weight: bold; margin: 30px 0 15px; border-left: 4px solid var(--accent); padding-left: 10px; }
+        .archive-item { display: flex; gap: 15px; margin-bottom: 10px; align-items: baseline; }
+        .archive-date { font-family: monospace; color: var(--text-sub); min-width: 50px; }
+        .archive-link { text-decoration: none; color: var(--text); border-bottom: 1px dashed var(--border); }
 
-        .cat-group { margin-bottom: 30px; }
-        .cat-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 15px; color: var(--text); display: flex; align-items: center; gap: 8px;}
-
-        #waline { margin-top: 60px; }
-        .wl-editor { min-height: 150px !important; padding: 15px !important; }
-
+        /* Footer */
         footer { margin-top: 80px; text-align: center; font-size: 0.8rem; color: var(--text-sub); border-top: 1px solid var(--border); padding-top: 25px; }
-
+        
         .hidden { display: none !important; }
-        .back-btn { display: inline-block; margin-bottom: 25px; color: var(--accent); font-weight: bold; cursor: pointer; font-size: 0.95rem; }
+        .back-btn { display: inline-block; margin-bottom: 20px; color: var(--accent); font-weight: bold; cursor: pointer; }
+        
+        /* Waline Override */
+        #waline { margin-top: 50px; }
+        .wl-editor { min-height: 100px !important; }
     </style>
 </head>
 <body>
@@ -191,15 +190,15 @@
         <div class="intro-box">
             <div>28年后，你还会想起我吗？</div>
             <div class="countdown">距离 2052-02-29 还有 <span id="timer">...</span></div>
-            <div class="social-icons">
-                <a href="mailto:nkx080112@gmail.com"><i class="fa-regular fa-envelope"></i></a>
-                <a href="https://github.com/3257085208"><i class="fa-brands fa-github"></i></a>
+            <div style="margin-top:15px; font-size:1.2rem; color:#95a5a6;">
+                <a href="mailto:nkx080112@gmail.com" style="color:inherit; margin-right:15px;"><i class="fa-regular fa-envelope"></i></a>
+                <a href="https://github.com/3257085208" style="color:inherit;"><i class="fa-brands fa-github"></i></a>
             </div>
         </div>
 
         <div class="section-header">近期发布</div>
         <div id="posts-container" class="post-list">
-            <div style="color:var(--text-sub)">Loading data...</div>
+            <div style="color:#999">Loading...</div>
         </div>
     </div>
 
@@ -218,7 +217,8 @@
     <footer>
         <div>Theme Higan | Powered by Waline</div>
         <div style="margin-top:8px;">
-            <i class="fa-solid fa-eye"></i> <span id="busuanzi_value_site_pv">...</span> &nbsp;|&nbsp; 
+            <i class="fa-solid fa-eye"></i> <span id="busuanzi_value_site_pv">...</span>
+            &nbsp;|&nbsp;
             <i class="fa-solid fa-star"></i> 运行 <span id="uptime">0</span> 天
         </div>
     </footer>
@@ -228,21 +228,16 @@
 <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 <script type="module">
     import { init } from 'https://unpkg.com/@waline/client@v2/dist/waline.mjs';
-    let walineInstance = null;
     window.loadWaline = function(path) {
-        if(walineInstance) walineInstance.destroy();
         document.getElementById('waline').innerHTML = '';
-        walineInstance = init({
+        init({
             el: '#waline',
-            // ⚠️ 记得换成你自己的 Vercel 域名！
-            serverURL: 'https://waline-rho-seven-75.vercel.app/', 
+            // ⚠️ 必填：请填入你的 Vercel 地址，否则无法评论
+            serverURL: 'https://waline.vercel.app', 
             path: path,
             dark: 'body[data-theme="dark"]',
             emoji: ['//unpkg.com/@waline/emojis@1.1.0/weibo'],
-            requiredMeta: ['nick'], 
-            login: 'force',
-            imageUploader: true, 
-            locale: { placeholder: '这里是 2026 年，请留下你的足迹...' }
+            login: 'force'
         });
     }
 </script>
@@ -256,35 +251,31 @@
             this.fetchData();
             this.startTimer();
         },
-
+        
         loadTheme() {
-            const theme = localStorage.getItem('theme') || 'light';
-            document.body.setAttribute('data-theme', theme);
-            this.updateIcon(theme);
+            const t = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', t);
+            document.getElementById('theme-icon').className = t==='light'?'fa-solid fa-sun':'fa-solid fa-moon';
         },
+        
         toggleTheme() {
-            const current = document.body.getAttribute('data-theme');
-            const next = current === 'light' ? 'dark' : 'light';
+            const cur = document.body.getAttribute('data-theme');
+            const next = cur==='light'?'dark':'light';
             document.body.setAttribute('data-theme', next);
             localStorage.setItem('theme', next);
-            this.updateIcon(next);
+            this.loadTheme();
         },
-        updateIcon(t) { document.getElementById('theme-icon').className = t === 'light' ? 'fa-solid fa-sun' : 'fa-solid fa-moon'; },
 
         async fetchData() {
             try {
-                // 🔴 缓存克星：每次都加随机数，强制更新
-                const res = await fetch('./posts.json?t=' + Date.now() + Math.random());
-                if(!res.ok) throw new Error();
+                // 加随机数强制刷新缓存
+                const res = await fetch('./posts.json?v=' + Math.random());
                 const data = await res.json();
-                
-                // 过滤掉 guestbook.md
                 this.posts = data.filter(p => !p.file.toLowerCase().includes('guestbook'));
-                
                 this.renderList();
-                this.handleRoute(); 
+                this.handleRoute();
             } catch(e) {
-                document.getElementById('posts-container').innerHTML = "暂无文章";
+                document.getElementById('posts-container').innerHTML = "加载失败，请检查 build.yml 是否运行成功";
             }
         },
 
@@ -292,20 +283,14 @@
             const c = document.getElementById('posts-container');
             c.innerHTML = '';
             this.posts.forEach(p => {
+                const tags = (p.tags||[]).map(t => `<span class="tag-pill">#${t}</span>`).join('');
                 const div = document.createElement('div');
                 div.className = 'post-item';
                 div.onclick = () => location.hash = p.file;
-                
-                let tagsHtml = '';
-                if(p.tags && Array.isArray(p.tags)) {
-                    p.tags.forEach(t => tagsHtml += `<span class="tag-pill">#${t}</span>`);
-                }
-                
                 div.innerHTML = `
                     <div class="post-title">${p.title}</div>
                     <div class="post-meta">
-                        <span>${p.date}</span>
-                        ${tagsHtml ? '<span style="color:var(--border)">|</span>' + tagsHtml : ''}
+                        ${p.date} ${tags}
                     </div>
                 `;
                 c.appendChild(div);
@@ -320,19 +305,14 @@
             c.innerHTML = '';
             const groups = {};
             this.posts.forEach(p => {
-                const year = p.date.substring(0, 4);
-                if(!groups[year]) groups[year] = [];
-                groups[year].push(p);
+                const y = p.date.substring(0,4);
+                if(!groups[y]) groups[y]=[];
+                groups[y].push(p);
             });
-            Object.keys(groups).sort().reverse().forEach(year => {
-                let html = `<div class="archive-year">${year}</div>`;
-                groups[year].forEach(p => {
-                    const shortDate = p.date.substring(5); 
-                    html += `
-                        <div class="archive-item">
-                            <span class="archive-date">${shortDate}</span>
-                            <a href="#${p.file}" class="archive-link">${p.title}</a>
-                        </div>`;
+            Object.keys(groups).sort().reverse().forEach(y => {
+                let html = `<div class="archive-year">${y}</div>`;
+                groups[y].forEach(p => {
+                    html += `<div class="archive-item"><span class="archive-date">${p.date.substring(5)}</span><a href="#${p.file}" class="archive-link">${p.title}</a></div>`;
                 });
                 c.innerHTML += html;
             });
@@ -344,85 +324,68 @@
             document.getElementById('archive-title').innerText = "分类";
             const c = document.getElementById('archive-content');
             c.innerHTML = '';
-
             const cats = {};
             this.posts.forEach(p => {
-                const catName = p.category || '日常';
-                if(!cats[catName]) cats[catName] = [];
-                cats[catName].push(p);
+                const cat = p.category || '日常';
+                if(!cats[cat]) cats[cat]=[];
+                cats[cat].push(p);
             });
-
             Object.keys(cats).forEach(cat => {
-                let html = `
-                <div class="cat-group">
-                    <div class="cat-title"><i class="fa-solid fa-folder"></i> ${cat}</div>`;
+                let html = `<div class="archive-year">${cat}</div>`;
                 cats[cat].forEach(p => {
-                    html += `
-                        <div class="archive-item">
-                            <span class="archive-date">${p.date}</span>
-                            <a href="#${p.file}" class="archive-link">${p.title}</a>
-                        </div>`;
+                    html += `<div class="archive-item"><span class="archive-date">${p.date}</span><a href="#${p.file}" class="archive-link">${p.title}</a></div>`;
                 });
-                html += `</div>`;
                 c.innerHTML += html;
             });
         },
 
-        async renderPost(file) {
+        async renderPost(f) {
             this.hideAll();
             document.getElementById('article-view').classList.remove('hidden');
             window.scrollTo(0,0);
-            if(window.loadWaline) window.loadWaline(file);
+            if(window.loadWaline) window.loadWaline(f);
             
             const content = document.getElementById('article-content');
-            content.innerHTML = '<div style="padding:40px 0; color:#ccc;">Loading...</div>';
-            
+            content.innerHTML = 'Loading...';
             try {
-                const res = await fetch(`./posts/${file}`); 
-                if(!res.ok) throw new Error("404");
+                const res = await fetch(`./posts/${f}`);
+                if(!res.ok) throw new Error();
                 const text = await res.text();
-                content.innerHTML = marked.parse(text);
+                // 简单的去除 Front Matter 显示
+                const cleanText = text.replace(/^---[\s\S]*?---/, '');
+                content.innerHTML = marked.parse(cleanText);
             } catch(e) {
-                content.innerHTML = "内容不存在或格式错误。";
+                content.innerHTML = "文章加载失败";
             }
         },
 
         hideAll() {
-            document.getElementById('home-view').classList.add('hidden');
-            document.getElementById('article-view').classList.add('hidden');
-            document.getElementById('archive-view').classList.add('hidden');
+            ['home-view', 'archive-view', 'article-view'].forEach(id => document.getElementById(id).classList.add('hidden'));
         },
 
         handleRoute() {
-            const hash = window.location.hash.slice(1);
-            if(!hash) {
-                this.hideAll();
-                document.getElementById('home-view').classList.remove('hidden');
-            } else if (hash === 'archive') {
-                this.renderArchive();
-            } else if (hash === 'category') {
-                this.renderCategory();
-            } else {
-                this.renderPost(hash);
-            }
+            const h = location.hash.slice(1);
+            if(!h) { this.hideAll(); document.getElementById('home-view').classList.remove('hidden'); }
+            else if(h==='archive') this.renderArchive();
+            else if(h==='category') this.renderCategory();
+            else this.renderPost(h);
         },
-        
-        goHome() { location.hash = ''; },
+
         toggleMenu() {
             document.getElementById('sidebar').classList.toggle('active');
             document.getElementById('overlay').classList.toggle('active');
         },
+        goHome() { location.hash = ''; },
 
         startTimer() {
             const target = new Date("2052-02-29").getTime();
             const start = new Date("2025-01-01").getTime();
             setInterval(() => {
                 const now = Date.now();
-                const diff = target - now;
-                const d = Math.floor(diff/86400000);
-                const h = Math.floor((diff%86400000)/3600000);
-                const m = Math.floor((diff%3600000)/60000);
-                const s = Math.floor((diff%60000)/1000);
+                const d = Math.floor((target-now)/86400000);
+                const h = Math.floor(((target-now)%86400000)/3600000);
+                const m = Math.floor(((target-now)%3600000)/60000);
+                const s = Math.floor(((target-now)%60000)/1000);
                 document.getElementById('timer').innerText = `${d}天 ${h}时 ${m}分 ${s}秒`;
                 document.getElementById('uptime').innerText = Math.floor((now-start)/86400000);
             }, 1000);
