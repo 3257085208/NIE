@@ -11,146 +11,263 @@
 
     <style>
         :root {
-            --bg: #ffffff;
-            --text: #333333;
-            --text-sub: #95a5a6;
+            /* 配色升级：更柔和的背景和更高级的阴影 */
+            --bg-color: #f7f9fe; /* 稍微带蓝的灰白，护眼 */
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --text-sub: #7f8c8d;
             --accent: #2ecc71;
-            --border: #eeeeee;
-            --menu-bg: rgba(255, 255, 255, 0.95);
-            --shadow: 0 4px 20px rgba(0,0,0,0.1);
-            --tag-bg: #f0f2f5;
+            --accent-hover: #27ae60;
+            --border: #eaecf0;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            
+            /* 点阵背景颜色 */
+            --dot-color: #e5e7eb;
+            --menu-glass: rgba(255, 255, 255, 0.8);
         }
 
         [data-theme="dark"] {
-            --bg: #1a1a1a;
-            --text: #e0e0e0;
-            --text-sub: #a0a0a0;
+            --bg-color: #0f172a; /* 深蓝黑，更有极客感 */
+            --card-bg: #1e293b;
+            --text-main: #e2e8f0;
+            --text-sub: #94a3b8;
             --accent: #4cd137;
-            --border: #333333;
-            --menu-bg: rgba(28, 28, 28, 0.95);
-            --shadow: 0 4px 20px rgba(0,0,0,0.5);
-            --tag-bg: #333;
+            --accent-hover: #5eead4;
+            --border: #334155;
+            --shadow-sm: none;
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            
+            --dot-color: #1e293b;
+            --menu-glass: rgba(30, 41, 59, 0.8);
+            
+            /* Waline 暗黑适配 */
+            --waline-bgcolor: #1e293b !important;
+            --waline-bgcolor-light: #334155 !important;
+            --waline-border-color: #475569 !important;
+            --waline-text-color: #e2e8f0 !important;
         }
 
+        /* --- 基础设置 --- */
         body {
-            font-family: -apple-system, "Noto Serif SC", sans-serif;
-            background: var(--bg);
-            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Serif SC", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
             margin: 0;
             padding: 0;
-            line-height: 1.6;
-            overflow-x: hidden; /* 禁止横向滚动 */
+            line-height: 1.7;
+            overflow-x: hidden;
+            transition: background 0.3s, color 0.3s;
+            
+            /* 极客风点阵背景 */
+            background-image: radial-gradient(var(--dot-color) 1px, transparent 1px);
+            background-size: 20px 20px;
         }
 
-        /* 强制覆盖 Markdown 样式 */
-        [data-theme="dark"] .markdown-body { background: transparent !important; color: var(--text) !important; }
-        [data-theme="dark"] .markdown-body pre { background: #2d2d2d !important; }
+        /* 暗黑模式 Markdown 修复 */
+        [data-theme="dark"] .markdown-body { background: transparent !important; color: var(--text-main) !important; }
+        [data-theme="dark"] .markdown-body pre { background: #0d1117 !important; }
+        [data-theme="dark"] .markdown-body table tr { background: var(--card-bg) !important; }
+        [data-theme="dark"] .markdown-body table tr:nth-child(2n) { background: #0f172a !important; }
 
         .container {
-            max-width: 700px;
+            max-width: 720px;
             margin: 0 auto;
-            padding: 100px 20px 100px;
+            padding: 120px 20px 100px; /* 顶部留白增加，为了悬浮栏 */
             min-height: 100vh;
+            /* 入场动画 */
+            animation: fadeUp 0.8s ease-out;
         }
 
-        /* ==================== 布局修复核心 ==================== */
-        
-        /* 1. 手机端侧滑菜单 (默认移出屏幕) */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ================= 导航系统 (核心美化) ================= */
+
+        /* 1. 电脑端悬浮药丸导航 */
+        #desktop-nav {
+            display: none; /* 默认隐藏 */
+        }
+
+        /* 2. 手机端侧边栏 (App 风格) */
         #sidebar {
-            position: fixed;
-            top: 0;
-            right: 0; /* 定位在右侧 */
-            width: 280px;
-            height: 100%;
-            background: var(--menu-bg);
+            position: fixed; top: 0; right: 0; width: 280px; height: 100%;
+            background: var(--menu-glass);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             z-index: 9999;
-            padding: 30px;
-            box-shadow: -5px 0 20px rgba(0,0,0,0.1);
-            
-            /* 关键修复：使用 transform 移出屏幕，而不是 right: -280px */
-            transform: translateX(100%); 
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); /* iOS 风格回弹 */
+            box-shadow: -10px 0 30px rgba(0,0,0,0.1);
+            display: flex; flex-direction: column;
         }
+        #sidebar.active { transform: translateX(0); }
 
-        /* 激活状态：移回屏幕 */
-        #sidebar.active {
-            transform: translateX(0);
+        /* 侧边栏头部用户信息 */
+        .sidebar-header {
+            padding: 40px 25px 20px;
+            background: linear-gradient(to bottom, rgba(46, 204, 113, 0.1), transparent);
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 10px;
         }
+        .sidebar-user { display: flex; align-items: center; gap: 15px; }
+        .sidebar-avatar { width: 60px; height: 60px; border-radius: 50%; border: 3px solid var(--card-bg); box-shadow: var(--shadow-md); }
+        .sidebar-name { font-weight: 900; font-size: 1.4rem; color: var(--text-main); }
+        .sidebar-bio { font-size: 0.85rem; color: var(--text-sub); margin-top: 5px; }
 
-        /* 遮罩层 */
+        /* 侧边栏菜单项 */
+        .sidebar-menu { padding: 10px 20px; display: flex; flex-direction: column; gap: 8px; }
+        .menu-link {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 15px;
+            font-size: 1rem; font-weight: 600; color: var(--text-main);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+        /* 选中/悬停态 */
+        .menu-link:hover, .menu-link:active {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: var(--accent);
+            transform: scale(0.98);
+        }
+        .menu-link i { width: 20px; text-align: center; color: var(--text-sub); transition: color 0.2s; }
+        .menu-link:hover i { color: var(--accent); }
+
+        /* 遮罩 */
         #overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); z-index: 9998;
+            background: rgba(0,0,0,0.3); z-index: 9998;
+            backdrop-filter: blur(2px);
             display: none; opacity: 0; transition: opacity 0.3s;
         }
         #overlay.active { display: block; opacity: 1; }
 
-        /* 2. 电脑端悬浮导航 (默认隐藏) */
-        #desktop-nav { display: none; }
 
-        /* 3. 媒体查询 (电脑端 >= 768px) */
+        /* --- 响应式逻辑 --- */
         @media (min-width: 768px) {
-            /* 电脑上彻底隐藏手机侧边栏 */
-            #sidebar { display: none !important; }
-            #mobile-menu-btn { display: none !important; }
+            #sidebar, #mobile-menu-btn, #overlay { display: none !important; }
             
-            /* 电脑上显示悬浮栏 */
             #desktop-nav {
-                display: flex;
-                position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-                background: var(--menu-bg);
-                backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-                padding: 0 30px; height: 50px; align-items: center; gap: 30px;
-                border-radius: 50px; border: 1px solid var(--border);
-                box-shadow: var(--shadow); z-index: 1000;
+                display: flex; position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+                background: var(--menu-glass); backdrop-filter: blur(16px);
+                padding: 0 8px; height: 56px; align-items: center; gap: 5px;
+                border-radius: 100px; 
+                border: 1px solid rgba(255,255,255,0.2);
+                box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+                z-index: 1000;
+            }
+            /* 电脑端导航按钮美化 */
+            #desktop-nav a {
+                text-decoration: none; color: var(--text-main); font-size: 0.95rem; font-weight: 600;
+                padding: 8px 20px; border-radius: 20px;
+                transition: all 0.3s;
+            }
+            #desktop-nav a:hover {
+                background-color: var(--card-bg);
+                color: var(--accent);
+                box-shadow: var(--shadow-sm);
             }
         }
-        /* ==================================================== */
 
-        /* Header */
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 50px; }
-        .header-left { display: flex; align-items: center; gap: 15px; cursor: pointer; }
-        .avatar { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--border); }
-        .site-title { font-weight: 800; font-size: 1.2rem; }
-        .icon-btn { font-size: 1.2rem; color: var(--text); background: none; border: none; cursor: pointer; padding: 5px; }
+        /* ================= 内容区域美化 ================= */
 
-        /* Links */
-        #desktop-nav a { text-decoration: none; color: var(--text); font-weight: 600; font-size: 0.9rem; position: relative; }
-        #desktop-nav a:hover { color: var(--accent); }
+        /* Header (仅保留 Logo) */
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        .header-left { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+        .avatar { width: 42px; height: 42px; border-radius: 50%; border: 2px solid var(--bg-color); box-shadow: var(--shadow-sm); }
+        .site-title { font-weight: 800; font-size: 1.2rem; letter-spacing: -0.5px; }
+        .icon-btn { font-size: 1.2rem; color: var(--text-main); background: none; border: none; cursor: pointer; padding: 8px; border-radius: 8px; transition: background 0.2s; }
+        .icon-btn:hover { background: rgba(0,0,0,0.05); }
+
+        /* Intro Card (Hero 区) */
+        .intro-card {
+            background: linear-gradient(135deg, var(--card-bg), var(--bg-color));
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 50px;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            overflow: hidden;
+        }
+        /* 装饰用的小圆点 */
+        .intro-card::before {
+            content: ''; position: absolute; top: -20px; right: -20px; width: 100px; height: 100px;
+            background: var(--accent); opacity: 0.1; border-radius: 50%; filter: blur(20px);
+        }
         
-        .menu-link { display: flex; align-items: center; gap: 15px; font-size: 1.1rem; color: var(--text); text-decoration: none; font-weight: bold; padding: 10px 0; border-bottom: 1px solid var(--border); }
+        .countdown { font-family: "JetBrains Mono", monospace; font-weight: bold; color: var(--accent); margin-top: 10px; font-size: 0.95rem; }
+        .social-icons { margin-top: 20px; display: flex; gap: 18px; font-size: 1.3rem; }
+        .social-icons a { color: var(--text-sub); transition: all 0.3s; }
+        .social-icons a:hover { color: var(--accent); transform: translateY(-2px); }
 
-        /* Content */
-        .intro-box { margin-bottom: 40px; }
-        .countdown { font-family: monospace; font-weight: bold; color: var(--accent); margin-top: 8px;}
-        .section-header { font-size: 1.5rem; font-weight: 900; color: var(--accent); margin: 40px 0 25px; }
+        /* Section Title */
+        .section-header { 
+            font-size: 1.4rem; font-weight: 900; color: var(--text-main); margin: 40px 0 20px; 
+            display: flex; align-items: center; gap: 10px;
+        }
+        .section-header::before { content: ''; width: 6px; height: 24px; background: var(--accent); border-radius: 3px; }
 
-        .post-list { display: flex; flex-direction: column; gap: 25px; }
-        .post-item { cursor: pointer; transition: transform 0.2s; }
-        .post-item:hover { transform: translateX(5px); }
-        .post-title { font-size: 1.1rem; font-weight: bold; border-bottom: 1px solid var(--border); padding-bottom: 2px; }
-        .post-meta { font-size: 0.8rem; color: var(--text-sub); margin-bottom: 4px; font-family: monospace; }
-        .tag-pill { background: var(--tag-bg); padding: 1px 6px; border-radius: 4px; font-size: 0.75rem; color: var(--text-sub); margin-left: 8px;}
+        /* ================= 文章列表 (卡片化) ================= */
+        .post-list { display: flex; flex-direction: column; gap: 15px; }
+        
+        .post-card {
+            background: var(--card-bg);
+            padding: 20px 25px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        /* 悬停时的浮动效果 */
+        .post-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--accent);
+        }
+        
+        .post-title { font-size: 1.2rem; font-weight: 700; color: var(--text-main); margin-bottom: 8px; line-height: 1.4; }
+        .post-meta { font-size: 0.85rem; color: var(--text-sub); display: flex; align-items: center; gap: 10px; }
+        .tag-pill { 
+            background: rgba(46, 204, 113, 0.1); color: var(--accent); 
+            padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;
+        }
 
-        /* Archives */
-        .archive-year { font-size: 1.5rem; font-weight: bold; margin: 30px 0 15px; border-left: 4px solid var(--accent); padding-left: 10px; }
-        .archive-item { display: flex; gap: 15px; margin-bottom: 10px; align-items: baseline; }
-        .archive-date { font-family: monospace; color: var(--text-sub); min-width: 50px; }
-        .archive-link { text-decoration: none; color: var(--text); border-bottom: 1px dashed var(--border); }
+        /* 归档样式 */
+        .archive-year { font-size: 1.8rem; font-weight: 900; color: var(--border); margin: 40px 0 20px; opacity: 0.5; }
+        .archive-item { 
+            display: flex; align-items: baseline; gap: 20px; padding: 15px 0; border-bottom: 1px dashed var(--border); 
+            transition: padding 0.2s;
+        }
+        .archive-item:hover { padding-left: 10px; }
+        .archive-date { font-family: monospace; color: var(--text-sub); font-size: 0.9rem; }
+        .archive-link { text-decoration: none; color: var(--text-main); font-weight: 500; }
+        .archive-link:hover { color: var(--accent); }
 
         /* Footer */
-        footer { margin-top: 80px; text-align: center; font-size: 0.8rem; color: var(--text-sub); border-top: 1px solid var(--border); padding-top: 25px; }
-        
+        footer { margin-top: 100px; text-align: center; font-size: 0.85rem; color: var(--text-sub); border-top: 1px solid var(--border); padding-top: 40px; }
+        .stats-pill {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: var(--card-bg); border: 1px solid var(--border);
+            padding: 5px 15px; border-radius: 20px; margin-top: 15px;
+            font-size: 0.8rem; box-shadow: var(--shadow-sm);
+        }
+
+        /* Utils */
         .hidden { display: none !important; }
-        .back-btn { display: inline-block; margin-bottom: 20px; color: var(--accent); font-weight: bold; cursor: pointer; }
+        .back-btn { 
+            display: inline-flex; align-items: center; gap: 5px; 
+            margin-bottom: 25px; padding: 8px 16px; background: var(--card-bg); border: 1px solid var(--border); 
+            border-radius: 20px; color: var(--text-main); font-weight: 600; cursor: pointer; transition: all 0.2s;
+        }
+        .back-btn:hover { box-shadow: var(--shadow-sm); color: var(--accent); }
         
-        /* Waline Override */
-        #waline { margin-top: 50px; }
-        .wl-editor { min-height: 100px !important; }
+        #waline { margin-top: 60px; }
     </style>
 </head>
 <body>
@@ -158,20 +275,30 @@
 <div id="overlay" onclick="app.toggleMenu()"></div>
 
 <nav id="sidebar">
-    <div style="font-weight:900; font-size:1.4rem; color:var(--accent); margin-bottom:10px;">MENU</div>
-    <a href="#" onclick="app.goHome(); app.toggleMenu()" class="menu-link"><i class="fa-solid fa-house"></i> 首页</a>
-    <a href="#category" onclick="app.toggleMenu()" class="menu-link"><i class="fa-solid fa-folder-open"></i> 分类</a>
-    <a href="#archive" onclick="app.toggleMenu()" class="menu-link"><i class="fa-solid fa-box-archive"></i> 归档</a>
-    <a href="#guestbook.md" onclick="app.toggleMenu()" class="menu-link"><i class="fa-solid fa-comment-dots"></i> 留言板</a>
-    <a href="https://status.nkx.moe" target="_blank" class="menu-link"><i class="fa-solid fa-server"></i> 站点状态</a>
+    <div class="sidebar-header">
+        <div class="sidebar-user">
+            <img src="https://github.com/3257085208.png" class="sidebar-avatar">
+            <div>
+                <div class="sidebar-name">Nie.net</div>
+                <div class="sidebar-bio">Server Admin</div>
+            </div>
+        </div>
+    </div>
+    <div class="sidebar-menu">
+        <a href="#" onclick="app.goHome(); app.toggleMenu()" class="menu-link"><i class="fa-solid fa-house"></i> 首页</a>
+        <a href="#category" onclick="app.toggleMenu()" class="menu-link"><i class="fa-solid fa-folder-open"></i> 分类</a>
+        <a href="#archive" onclick="app.toggleMenu()" class="menu-link"><i class="fa-solid fa-box-archive"></i> 归档</a>
+        <a href="#guestbook.md" onclick="app.toggleMenu()" class="menu-link"><i class="fa-solid fa-comment-dots"></i> 留言板</a>
+        <a href="https://status.nkx.moe" target="_blank" class="menu-link"><i class="fa-solid fa-server"></i> 监控</a>
+    </div>
 </nav>
 
 <nav id="desktop-nav">
     <a href="#" onclick="app.goHome()">首页</a>
     <a href="#category">分类</a>
     <a href="#archive">归档</a>
-    <a href="#guestbook.md">留言板</a>
-    <a href="https://status.nkx.moe" target="_blank">状态</a>
+    <a href="#guestbook.md">留言</a>
+    <a href="https://status.nkx.moe" target="_blank">监控</a>
 </nav>
 
 <div class="container">
@@ -187,39 +314,43 @@
     </header>
 
     <div id="home-view">
-        <div class="intro-box">
-            <div>28年后，你还会想起我吗？</div>
+        <div class="intro-card">
+            <div style="font-size:1.1rem; font-weight:600; margin-bottom:5px;">28年后，你还会想起我吗？</div>
             <div class="countdown">距离 2052-02-29 还有 <span id="timer">...</span></div>
-            <div style="margin-top:15px; font-size:1.2rem; color:#95a5a6;">
-                <a href="mailto:nkx080112@gmail.com" style="color:inherit; margin-right:15px;"><i class="fa-regular fa-envelope"></i></a>
-                <a href="https://github.com/3257085208" style="color:inherit;"><i class="fa-brands fa-github"></i></a>
+            <div class="social-icons">
+                <a href="mailto:nkx080112@gmail.com"><i class="fa-regular fa-envelope"></i></a>
+                <a href="https://github.com/3257085208"><i class="fa-brands fa-github"></i></a>
+                <a href="#"><i class="fa-brands fa-telegram"></i></a>
             </div>
         </div>
 
         <div class="section-header">近期发布</div>
+        
         <div id="posts-container" class="post-list">
-            <div style="color:#999">Loading...</div>
+            <div style="text-align:center; color:var(--text-sub); padding:20px;">
+                <i class="fa-solid fa-spinner fa-spin"></i> Loading...
+            </div>
         </div>
     </div>
 
     <div id="archive-view" class="hidden">
-        <div class="back-btn" onclick="app.goHome()">← 返回首页</div>
+        <div class="back-btn" onclick="app.goHome()"><i class="fa-solid fa-arrow-left"></i> 返回</div>
         <h2 id="archive-title" class="section-header">归档</h2>
         <div id="archive-content"></div>
     </div>
 
     <div id="article-view" class="hidden">
-        <div class="back-btn" onclick="app.goHome()">← 返回列表</div>
+        <div class="back-btn" onclick="app.goHome()"><i class="fa-solid fa-arrow-left"></i> 返回列表</div>
         <div id="article-content" class="markdown-body"></div>
         <div id="waline"></div>
     </div>
 
     <footer>
-        <div>Theme Higan | Powered by Waline</div>
-        <div style="margin-top:8px;">
-            <i class="fa-solid fa-eye"></i> <span id="busuanzi_value_site_pv">...</span>
-            &nbsp;|&nbsp;
-            <i class="fa-solid fa-star"></i> 运行 <span id="uptime">0</span> 天
+        <div>Theme Higan-Pro | Powered by Waline</div>
+        <div class="stats-pill">
+            <i class="fa-solid fa-eye" style="color:var(--accent)"></i> <span id="busuanzi_value_site_pv">...</span>
+            <span style="color:var(--border)">|</span>
+            <i class="fa-solid fa-server" style="color:var(--accent)"></i> 运行 <span id="uptime">0</span> 天
         </div>
     </footer>
 </div>
@@ -232,7 +363,7 @@
         document.getElementById('waline').innerHTML = '';
         init({
             el: '#waline',
-            // ⚠️ 必填：请填入你的 Vercel 地址，否则无法评论
+            // ⚠️ 记得换成你自己的 Vercel 域名
             serverURL: 'https://waline.vercel.app', 
             path: path,
             dark: 'body[data-theme="dark"]',
@@ -268,14 +399,13 @@
 
         async fetchData() {
             try {
-                // 加随机数强制刷新缓存
                 const res = await fetch('./posts.json?v=' + Math.random());
                 const data = await res.json();
                 this.posts = data.filter(p => !p.file.toLowerCase().includes('guestbook'));
                 this.renderList();
                 this.handleRoute();
             } catch(e) {
-                document.getElementById('posts-container').innerHTML = "加载失败，请检查 build.yml 是否运行成功";
+                document.getElementById('posts-container').innerHTML = "加载失败，请检查构建状态";
             }
         },
 
@@ -284,13 +414,16 @@
             c.innerHTML = '';
             this.posts.forEach(p => {
                 const tags = (p.tags||[]).map(t => `<span class="tag-pill">#${t}</span>`).join('');
+                
+                // --- 升级为卡片样式 ---
                 const div = document.createElement('div');
-                div.className = 'post-item';
+                div.className = 'post-card'; // 改用 post-card 类
                 div.onclick = () => location.hash = p.file;
                 div.innerHTML = `
                     <div class="post-title">${p.title}</div>
                     <div class="post-meta">
-                        ${p.date} ${tags}
+                        <i class="fa-regular fa-calendar"></i> ${p.date} 
+                        ${tags ? '&nbsp;&nbsp;' + tags : ''}
                     </div>
                 `;
                 c.appendChild(div);
@@ -331,7 +464,7 @@
                 cats[cat].push(p);
             });
             Object.keys(cats).forEach(cat => {
-                let html = `<div class="archive-year">${cat}</div>`;
+                let html = `<div class="archive-year" style="font-size:1.4rem"><i class="fa-solid fa-folder"></i> ${cat}</div>`;
                 cats[cat].forEach(p => {
                     html += `<div class="archive-item"><span class="archive-date">${p.date}</span><a href="#${p.file}" class="archive-link">${p.title}</a></div>`;
                 });
@@ -346,12 +479,11 @@
             if(window.loadWaline) window.loadWaline(f);
             
             const content = document.getElementById('article-content');
-            content.innerHTML = 'Loading...';
+            content.innerHTML = '<div style="text-align:center; padding:50px;"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</div>';
             try {
                 const res = await fetch(`./posts/${f}`);
                 if(!res.ok) throw new Error();
                 const text = await res.text();
-                // 简单的去除 Front Matter 显示
                 const cleanText = text.replace(/^---[\s\S]*?---/, '');
                 content.innerHTML = marked.parse(cleanText);
             } catch(e) {
