@@ -13,154 +13,195 @@
     <style>
         :root {
             --bg: #ffffff;
-            --text: #3c4858;
-            --text-sub: #8590a6;
-            --accent: #3eaf7c; 
-            --border: #eaecef;
-            --menu-bg: rgba(255, 255, 255, 0.95);
-            --tag-bg: #f3f5f7;
+            --text: #4a5568; /* 更柔和的深灰，不刺眼 */
+            --text-sub: #a0aec0;
+            
+            /* 🟢 颜色微调：莫兰迪绿 / 薄荷奶绿 (更高级，不荧光) */
+            --accent: #42b883; 
+            
+            --border: #edf2f7;
+            --menu-bg: rgba(255, 255, 255, 0.98);
+            --tag-bg: #f7fafc;
             --float-btn-bg: #ffffff;
             
+            /* Waline 深度定制变量 */
             --waline-theme-color: var(--accent) !important;
-            --waline-active-color: #2c855e !important;
+            --waline-active-color: #35495e !important;
+            --waline-bgcolor: #f8f9fa !important; /* 评论框浅灰背景，显圆润 */
+            --waline-bgcolor-light: #ffffff !important;
+            --waline-border-color: #edf2f7 !important;
+            --waline-radius: 15px !important; /* 评论框大圆角 */
+            --waline-box-shadow: none !important; /* 去掉生硬阴影 */
         }
 
         [data-theme="dark"] {
-            --bg: #1a1a1a;
-            --text: #e0e0e0;
-            --text-sub: #a0a0a0;
-            --accent: #4cd137;
-            --border: #333333;
-            --menu-bg: rgba(28, 28, 28, 0.95);
-            --tag-bg: #333;
-            --float-btn-bg: #2d2d2d;
+            --bg: #1a202c;
+            --text: #e2e8f0;
+            --text-sub: #718096;
+            --accent: #48bb78; /* 夜间模式稍微亮一点的绿 */
+            --border: #2d3748;
+            --menu-bg: rgba(26, 32, 44, 0.98);
+            --tag-bg: #2d3748;
+            --float-btn-bg: #2d3748;
             
-            --waline-bgcolor: #252525 !important; 
-            --waline-bgcolor-light: #303030 !important;
-            --waline-border-color: #444 !important;
-            --waline-text-color: #eee !important;
+            --waline-bgcolor: #2d3748 !important;
+            --waline-bgcolor-light: #1a202c !important;
+            --waline-border-color: #4a5568 !important;
+            --waline-text-color: #e2e8f0 !important;
         }
 
         body {
-            /* 🟢 核心修改：全新的圆润字体栈 */
-            /* 优先使用 Nunito 显示英文和数字 */
-            /* 中文使用系统自带的现代黑体 (PingFang, YaHei UI)，比宋体更圆润柔和 */
-            font-family: 'Nunito', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+            /* 🟢 字体核心：中英文全部圆润化 */
+            /* Nunito (英) + PingFang SC (Mac圆润黑体) + Microsoft YaHei UI (Win圆润黑体) */
+            font-family: 'Nunito', 'PingFang SC', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
             background: var(--bg);
             color: var(--text);
             margin: 0;
             padding: 0;
-            line-height: 1.7;
+            line-height: 1.75;
             transition: background 0.3s, color 0.3s;
             -webkit-tap-highlight-color: transparent;
             scroll-behavior: smooth;
         }
 
+        /* Markdown 内容圆润化 */
+        .markdown-body {
+            font-family: 'Nunito', 'PingFang SC', 'Microsoft YaHei UI', sans-serif !important;
+        }
         [data-theme="dark"] .markdown-body { background: transparent !important; color: var(--text) !important; }
-        [data-theme="dark"] .markdown-body pre { background: #2d2d2d !important; }
+        [data-theme="dark"] .markdown-body pre { background: #2d3748 !important; border-radius: 10px; }
 
         .container {
             max-width: 800px;
             margin: 0 auto;
-            padding: 30px 20px 80px; 
+            padding: 30px 20px 100px; 
             min-height: 100vh;
         }
 
-        /* Header */
+        /* --- Header --- */
         header { display: flex; justify-content: space-between; align-items: center; height: 80px; margin-bottom: 40px; }
+        
         .brand-area { display: flex; align-items: center; gap: 15px; cursor: pointer; }
-        .avatar { width: 48px; height: 48px; border-radius: 50%; border: 1px solid var(--border); transition: transform 0.5s; }
+        .avatar { width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--border); transition: transform 0.5s; }
         .avatar:hover { transform: rotate(360deg); }
-        /* 标题继承圆润字体，并加粗 */
-        .site-title { font-weight: 800; font-size: 1.5rem; letter-spacing: 0.5px; color: var(--text); }
-        .theme-icon { font-size: 1.1rem; color: #f1c40f; margin-left: 8px; cursor: pointer; transition: transform 0.3s; }
-        .theme-icon:hover { transform: scale(1.2); }
+        .site-title { font-weight: 800; font-size: 1.4rem; letter-spacing: 0.5px; color: var(--text); }
+        .theme-icon { font-size: 1.2rem; color: #ecc94b; margin-left: 8px; cursor: pointer; transition: transform 0.3s; }
+        .theme-icon:hover { transform: scale(1.1); }
 
-        .pc-nav { display: none; gap: 25px; font-size: 1rem; font-weight: 700; }
-        .pc-nav a { text-decoration: none; color: var(--accent); position: relative; padding: 5px 0; }
-        .pc-nav a::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background: var(--accent); transition: width 0.3s; }
-        .pc-nav a:hover::after { width: 100%; }
-        .nav-divider { color: var(--border); font-weight: 300; }
-        .mobile-menu-btn { font-size: 1.3rem; color: var(--accent); cursor: pointer; padding: 5px; display: block; }
+        .pc-nav { display: none; gap: 28px; font-size: 1rem; font-weight: 700; }
+        .pc-nav a { text-decoration: none; color: var(--text); position: relative; padding: 5px 0; transition: color 0.2s;}
+        .pc-nav a:hover { color: var(--accent); }
+        /* 选中状态的小圆点 */
+        .pc-nav a:hover::after { 
+            content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+            width: 5px; height: 5px; border-radius: 50%; background: var(--accent); 
+        }
+        
+        .nav-divider { color: var(--border); font-weight: 300; opacity: 0.5; }
+        .mobile-menu-btn { font-size: 1.4rem; color: var(--accent); cursor: pointer; padding: 5px; display: block; }
 
         @media (min-width: 768px) {
             .mobile-menu-btn { display: none !important; }
-            .pc-nav { display: flex !important; }
+            .pc-nav { display: flex !important; align-items: center;}
             #sidebar { display: none !important; }
             #overlay { display: none !important; }
         }
 
-        /* Sidebar */
+        /* --- Sidebar --- */
         #sidebar {
             position: fixed; top: 0; right: 0; width: 240px; height: 100%;
             background: var(--menu-bg); z-index: 9999; padding: 40px 30px;
-            box-shadow: -5px 0 20px rgba(0,0,0,0.05);
-            transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex; flex-direction: column; gap: 20px;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.05);
+            transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex; flex-direction: column; gap: 15px;
         }
         #sidebar.active { transform: translateX(0); }
         #overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.2); z-index: 9998; backdrop-filter: blur(2px);
+            background: rgba(0,0,0,0.2); z-index: 9998; backdrop-filter: blur(4px);
             display: none; opacity: 0; transition: opacity 0.3s;
         }
         #overlay.active { display: block; opacity: 1; }
+        
         .menu-link {
             font-size: 1.1rem; color: var(--text); text-decoration: none; font-weight: 800;
-            display: flex; align-items: center; gap: 15px; padding-bottom: 15px;
+            display: flex; align-items: center; gap: 15px; padding: 12px 0;
             border-bottom: 1px dashed var(--border);
         }
 
-        /* Content */
-        .intro-text { font-size: 1.1rem; margin-bottom: 15px; color: var(--text); font-weight: 600;}
-        /* 倒计时使用 Nunito 的数字，很圆润 */
-        .countdown { font-family: 'Nunito', monospace; font-weight: 800; color: var(--text); margin-bottom: 25px; font-size: 1rem;}
-        .social-contact { display: flex; align-items: center; gap: 18px; font-size: 1.3rem; color: var(--text); margin-top: 25px; }
+        /* --- Content --- */
+        .intro-text { font-size: 1.1rem; margin-bottom: 15px; color: var(--text); font-weight: 700;}
+        .countdown { font-family: 'Nunito', monospace; font-weight: 800; color: var(--accent); margin-bottom: 25px; font-size: 1.1rem;}
+        
+        .social-contact { display: flex; align-items: center; gap: 20px; font-size: 1.4rem; color: var(--text); margin-top: 30px; }
         .social-label { font-weight: 800; margin-right: 5px; font-size: 1rem; color: var(--text); }
-        .social-icon-link { color: var(--text); transition: color 0.2s; }
-        .social-icon-link:hover { color: var(--accent); }
+        .social-icon-link { color: var(--text-sub); transition: all 0.3s; }
+        .social-icon-link:hover { color: var(--accent); transform: translateY(-2px); }
 
-        /* 🟢 修改点：大标题现在使用圆润字体栈 */
-        .section-header { font-size: 1.8rem; font-weight: 800; color: var(--accent); margin: 50px 0 30px 0; }
+        .section-header { font-size: 1.8rem; font-weight: 900; color: var(--accent); margin: 60px 0 30px 0; }
 
+        /* --- List --- */
         .post-list { display: flex; flex-direction: column; gap: 35px; }
         .post-item { display: flex; flex-direction: column; align-items: flex-start; }
-        /* 🟢 修改点：日期也使用继承的圆润字体，不再用尖锐的等宽字体 */
-        .post-date { font-size: 0.9rem; color: var(--text-sub); margin-bottom: 6px; font-weight: 600; }
+        .post-date { font-size: 0.9rem; color: var(--text-sub); margin-bottom: 8px; font-weight: 700; font-family: 'Nunito'; }
+        
         .post-title-link {
             font-size: 1.25rem; color: var(--text); text-decoration: none;
-            border-bottom: 2px solid var(--border); padding-bottom: 2px;
-            line-height: 1.4; font-weight: 700; transition: all 0.2s;
+            position: relative; padding-bottom: 2px;
+            line-height: 1.4; font-weight: 800; transition: color 0.2s;
         }
-        .post-title-link:hover { color: var(--accent); border-color: var(--accent); }
-        .post-tags { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
-        .tag-pill { font-size: 0.8rem; color: var(--text-sub); background: var(--tag-bg); padding: 2px 8px; border-radius: 6px; font-weight: 600; }
+        /* 圆润的下划线动画 */
+        .post-title-link::after {
+            content: ''; position: absolute; left: 0; bottom: 0; width: 100%; height: 3px;
+            background: var(--accent); opacity: 0.3; border-radius: 2px; transition: opacity 0.2s;
+        }
+        .post-title-link:hover { color: var(--accent); }
+        .post-title-link:hover::after { opacity: 1; }
 
-        footer { margin-top: 100px; text-align: center; font-size: 0.9rem; color: var(--text-sub); border-top: 1px solid var(--border); padding-top: 40px; line-height: 2; font-weight: 600; }
+        .post-tags { margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap; }
+        .tag-pill { 
+            font-size: 0.8rem; color: var(--text-sub); background: var(--tag-bg); 
+            padding: 4px 10px; border-radius: 20px; /* 胶囊圆角 */
+            font-weight: 700; transition: all 0.2s;
+        }
+        .tag-pill:hover { background: var(--accent); color: white; }
+
+        /* Footer */
+        footer { margin-top: 100px; text-align: center; font-size: 0.9rem; color: var(--text-sub); border-top: 1px dashed var(--border); padding-top: 40px; font-weight: 600; }
         
-        .hidden { display: none !important; }
-        .back-btn { display: inline-block; margin-bottom: 30px; color: var(--accent); font-weight: 800; cursor: pointer; font-size: 1rem; }
+        /* Waline Custom CSS (让评论区变圆润) */
         #waline { margin-top: 80px; }
+        .wl-editor { 
+            min-height: 120px; 
+            border-radius: 15px !important; 
+            padding: 15px !important;
+            font-family: 'Nunito', 'PingFang SC', sans-serif !important;
+        }
+        .wl-btn { border-radius: 20px !important; font-weight: 700 !important; }
+        .wl-card { border-radius: 15px !important; border: 1px solid var(--border) !important; margin-bottom: 15px !important;}
         
-        .archive-year { font-size: 1.8rem; font-weight: 800; margin: 40px 0 20px; color: var(--text); }
+        /* Utils */
+        .hidden { display: none !important; }
+        .back-btn { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 30px; color: var(--accent); font-weight: 800; cursor: pointer; font-size: 1.1rem; }
+        
+        .archive-year { font-size: 1.8rem; font-weight: 900; margin: 40px 0 20px; color: var(--text); }
         .archive-item { display: flex; gap: 20px; margin-bottom: 15px; align-items: baseline; }
-        /* 🟢 修改点：归档日期也圆润化 */
-        .archive-date { color: var(--text-sub); min-width: 50px; font-weight: 600;}
-        .archive-link { text-decoration: none; color: var(--text); border-bottom: 1px solid var(--border); }
+        .archive-date { color: var(--text-sub); min-width: 50px; font-weight: 700; font-family: 'Nunito';}
+        .archive-link { text-decoration: none; color: var(--text); border-bottom: 1px dashed var(--border); font-weight: 600;}
         .archive-link:hover { color: var(--accent); border-color: var(--accent); }
 
-        /* 悬浮按钮组 */
+        /* Float Buttons */
         #float-btn-group {
             position: fixed; bottom: 40px; right: 25px; display: flex; flex-direction: column; gap: 15px; z-index: 900;
             opacity: 0; pointer-events: none; transition: opacity 0.3s ease, transform 0.3s ease; transform: translateY(20px);
         }
         #float-btn-group.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
         .float-btn {
-            width: 45px; height: 45px; background: var(--float-btn-bg); border: 1px solid var(--border); border-radius: 50%;
-            display: flex; justify-content: center; align-items: center; font-size: 1.1rem; color: var(--text-sub);
-            cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.08); transition: all 0.2s;
+            width: 48px; height: 48px; background: var(--float-btn-bg); border: 1px solid var(--border); border-radius: 50%;
+            display: flex; justify-content: center; align-items: center; font-size: 1.2rem; color: var(--text-sub);
+            cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.08); transition: all 0.2s;
         }
-        .float-btn:hover { color: var(--accent); border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 6px 15px rgba(62, 175, 124, 0.2); }
+        .float-btn:hover { color: var(--accent); border-color: var(--accent); transform: translateY(-3px); }
     </style>
 </head>
 <body>
@@ -168,8 +209,8 @@
 <div id="overlay" onclick="app.toggleMenu()"></div>
 
 <div id="float-btn-group">
-    <div class="float-btn" onclick="app.goHome()" title="返回列表"><i class="fa-solid fa-arrow-left"></i></div>
-    <div class="float-btn" onclick="window.scrollTo({top:0, behavior:'smooth'})" title="回到顶部"><i class="fa-solid fa-arrow-up"></i></div>
+    <div class="float-btn" onclick="app.goHome()" title="返回"><i class="fa-solid fa-arrow-left"></i></div>
+    <div class="float-btn" onclick="window.scrollTo({top:0, behavior:'smooth'})" title="顶部"><i class="fa-solid fa-arrow-up"></i></div>
 </div>
 
 <nav id="sidebar">
@@ -193,13 +234,13 @@
 
         <nav class="pc-nav">
             <a href="#" onclick="app.goHome()">首页</a>
-            <span class="nav-divider">|</span>
+            <span class="nav-divider">/</span>
             <a href="#category">分类</a>
-            <span class="nav-divider">|</span>
+            <span class="nav-divider">/</span>
             <a href="#archive">归档</a>
-            <span class="nav-divider">|</span>
+            <span class="nav-divider">/</span>
             <a href="#guestbook.md">留言</a>
-            <span class="nav-divider">|</span>
+            <span class="nav-divider">/</span>
             <a href="https://status.nkx.moe" target="_blank">状态</a>
         </nav>
 
@@ -231,13 +272,13 @@
     </div>
 
     <div id="archive-view" class="hidden">
-        <div class="back-btn" onclick="app.goHome()">← 返回首页</div>
+        <div class="back-btn" onclick="app.goHome()"><i class="fa-solid fa-arrow-left"></i> 返回首页</div>
         <h2 id="archive-title" class="section-header" style="margin-top:0">归档</h2>
         <div id="archive-content"></div>
     </div>
 
     <div id="article-view" class="hidden">
-        <div class="back-btn" onclick="app.goHome()">← 返回列表</div>
+        <div class="back-btn" onclick="app.goHome()"><i class="fa-solid fa-arrow-left"></i> 返回列表</div>
         <div id="article-content" class="markdown-body"></div>
         <div id="waline"></div>
     </div>
@@ -247,9 +288,9 @@
             <span id="busuanzi_container_site_pv">
                 阅读量 <span id="busuanzi_value_site_pv">...</span>
             </span>
-            <span style="margin:0 10px">|</span>
+            <span style="margin:0 10px; color:var(--border)">|</span>
             <span>已发布 <span id="total-posts">0</span></span>
-            <span style="margin:0 10px">|</span>
+            <span style="margin:0 10px; color:var(--border)">|</span>
             <span>字数 <span id="total-words">0</span></span>
         </div>
         <div>Theme Higan | Powered by Nie.net</div>
@@ -293,7 +334,6 @@
             const t = localStorage.getItem('theme') || 'light';
             document.body.setAttribute('data-theme', t);
             document.getElementById('theme-icon').className = t==='light'?'fa-solid fa-sun theme-icon':'fa-solid fa-moon theme-icon';
-            document.getElementById('theme-icon').parentElement.style.color = t==='light'?'#f39c12':'#f1c40f';
         },
         
         toggleTheme() {
