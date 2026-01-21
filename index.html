@@ -502,11 +502,16 @@
             const c = document.getElementById('archive-content');
             c.innerHTML = '';
             const cats = {};
+            
             this.posts.forEach(p => {
+                // 🟢 核心修复：遇到“说说”直接跳过，不在分类页显示
+                if (p.category === '说说') return; 
+
                 const cat = p.category || '默认分类';
                 if(!cats[cat]) cats[cat]=[];
                 cats[cat].push(p);
             });
+            
             Object.keys(cats).forEach(cat => {
                 let html = `<div class="archive-year" style="font-size:1.5rem">${cat}</div>`;
                 cats[cat].forEach(p => {
@@ -570,7 +575,7 @@
         goHome() { location.hash = ''; },
 
         startTimer() {
-            const start = new Date("2025-01-01").getTime();
+            const start = new Date("2026-01-21").getTime();
             setInterval(() => {
                 const now = Date.now();
                 document.getElementById('uptime').innerText = Math.floor((now-start)/86400000);
