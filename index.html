@@ -131,27 +131,16 @@
         .post-list { display: flex; flex-direction: column; gap: 35px; }
         .post-item { display: flex; flex-direction: column; align-items: flex-start; }
         .post-date { font-size: 0.9rem; color: var(--text-sub); margin-bottom: 8px; font-weight: 700; }
+        /* 🟢 修复手机下划线 Bug 的新 CSS */
         .post-title-link {
-            font-size: 1.3rem; 
-            color: var(--text); 
-            line-height: 1.4; 
-            font-weight: 800; 
-            transition: all 0.2s;
-            
-            /* 🟢 修复手机换行下划线 bug */
+            font-size: 1.3rem; color: var(--text); line-height: 1.4; font-weight: 800; transition: all 0.2s;
             text-decoration: underline;
-            /* 下划线颜色：使用 accent 颜色，并混合 70% 透明度 (即 30% 不透明度) */
             text-decoration-color: color-mix(in srgb, var(--accent), transparent 70%);
-            /* 下划线粗细 */
             text-decoration-thickness: 3px;
-            /* 下划线向下偏移距离 */
             text-underline-offset: 4px;
         }
-
-        .post-title-link:hover {
-            /* 悬停时，下划线变回实色 */
-            text-decoration-color: var(--accent);
-        }
+        .post-title-link:hover { text-decoration-color: var(--accent); }
+        
         .post-tags { margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap; }
         .tag-pill { 
             font-size: 0.8rem; color: var(--text-sub); background: var(--tag-bg); 
@@ -329,7 +318,6 @@
 
 <script type="module">
     import { init } from 'https://cdn.jsdelivr.net/npm/@waline/client@v2/dist/waline.mjs';
-    
     window.loadWaline = function(path) {
         document.getElementById('waline').innerHTML = '';
         init({
@@ -339,14 +327,16 @@
             dark: 'body[data-theme="dark"]',
             emoji: ['//cdn.jsdelivr.net/npm/@waline/emojis@1.1.0/weibo'],
             login: 'enable',
-            search: false, 
-            imageUploader: false, 
+            search: false, imageUploader: false, 
             locale: { placeholder: '此处支持 Markdown 语法...' }
         });
     }
 </script>
 
 <script>
+    // 🟢 暗号：这个变量平时是 null，但 GitHub Actions 会把数据填进去
+    const PRELOADED_DATA = null;
+
     const app = {
         posts: [],
         init() {
@@ -362,7 +352,6 @@
             document.body.setAttribute('data-theme', t);
             document.getElementById('theme-icon').className = t==='light'?'fa-solid fa-sun theme-icon':'fa-solid fa-moon theme-icon';
         },
-        
         toggleTheme() {
             const cur = document.body.getAttribute('data-theme');
             const next = cur==='light'?'dark':'light';
@@ -370,7 +359,6 @@
             localStorage.setItem('theme', next);
             this.loadTheme();
         },
-
         handleScroll() {
             const btnGroup = document.getElementById('float-btn-group');
             if (window.scrollY > 300) { btnGroup.classList.add('visible'); } else { btnGroup.classList.remove('visible'); }
@@ -378,19 +366,26 @@
 
         async fetchData() {
             try {
-                // ⚡️ 极速优化：去掉随机数，允许 CDN 缓存加速
-                const res = await fetch('./posts.json'); 
-                const data = await res.json();
-                this.posts = data.filter(p => !p.file.toLowerCase().includes('guestbook'));
+                // 🟢 极速逻辑：如果有注入的数据，直接用，不发请求！
+                if (PRELOADED_DATA) {
+                    console.log("⚡️ Using preloaded data!");
+                    this.posts = PRELOADED_DATA;
+                } else {
+                    // 本地开发时的后备方案
+                    const res = await fetch('./posts.json'); 
+                    this.posts = await res.json();
+                }
+                
+                this.posts = this.posts.filter(p => !p.file.toLowerCase().includes('guestbook'));
                 this.renderList();
                 this.handleRoute();
-                this.calcStats(data);
+                this.calcStats();
             } catch(e) {
                 document.getElementById('posts-container').innerHTML = "文章加载失败";
             }
         },
 
-        calcStats(allPosts) {
+        calcStats() {
             document.getElementById('total-posts').innerText = this.posts.length;
             let totalWords = 0;
             this.posts.forEach(p => { totalWords += (p.word_count || 0); });
@@ -412,9 +407,7 @@
         renderList() {
             const c = document.getElementById('posts-container');
             c.innerHTML = '';
-            // 过滤掉 '说说'，只显示普通文章
             const normalPosts = this.posts.filter(p => p.category !== '说说');
-            
             normalPosts.forEach(p => {
                 const div = document.createElement('div');
                 div.className = 'post-item';
@@ -431,29 +424,18 @@
             });
         },
 
-        // 🟢 渲染“说说”动态
         renderStatus() {
             this.hideAll();
             document.getElementById('status-view').classList.remove('hidden');
             const c = document.getElementById('status-content');
             c.innerHTML = '';
-            
             const statusPosts = this.posts.filter(p => p.category === '说说');
-            
-            if (statusPosts.length === 0) {
-                c.innerHTML = '<div style="color:#999">暂无动态...</div>';
-                return;
-            }
-
-            // 获取你的头像 (用于显示在每条说说的左侧)
+            if (statusPosts.length === 0) { c.innerHTML = '<div style="color:#999">暂无动态...</div>'; return; }
             const myAvatar = document.querySelector('.avatar').src;
-
             statusPosts.forEach(p => {
                 const div = document.createElement('div');
                 div.className = 'status-item';
-                // 解析 markdown
                 const contentHtml = marked.parse(p.content || '无内容');
-                
                 div.innerHTML = `
                     <img src="${myAvatar}" class="status-avatar">
                     <div class="status-main">
@@ -463,12 +445,9 @@
                         </div>
                         <div class="status-card markdown-body">${contentHtml}</div>
                         <div class="status-actions">
-                            <div class="status-btn" onclick="location.hash='${p.file}'">
-                                <i class="fa-regular fa-comment-dots"></i> 评论
-                            </div>
+                            <div class="status-btn" onclick="location.hash='${p.file}'"><i class="fa-regular fa-comment-dots"></i> 评论</div>
                         </div>
-                    </div>
-                `;
+                    </div>`;
                 c.appendChild(div);
             });
         },
@@ -481,7 +460,7 @@
             c.innerHTML = '';
             const groups = {};
             this.posts.forEach(p => {
-                if(p.category === '说说') return; // 归档不显示说说
+                if(p.category === '说说') return;
                 const y = p.date.substring(0,4);
                 if(!groups[y]) groups[y]=[];
                 groups[y].push(p);
@@ -502,16 +481,13 @@
             const c = document.getElementById('archive-content');
             c.innerHTML = '';
             const cats = {};
-            
             this.posts.forEach(p => {
-                // 🟢 核心修复：遇到“说说”直接跳过，不在分类页显示
-                if (p.category === '说说') return; 
-
+                // 🟢 修复：分类页不显示说说
+                if (p.category === '说说') return;
                 const cat = p.category || '默认分类';
                 if(!cats[cat]) cats[cat]=[];
                 cats[cat].push(p);
             });
-            
             Object.keys(cats).forEach(cat => {
                 let html = `<div class="archive-year" style="font-size:1.5rem">${cat}</div>`;
                 cats[cat].forEach(p => {
@@ -530,13 +506,11 @@
             const content = document.getElementById('article-content');
             content.innerHTML = '<div style="padding:50px 0; color:#999;">Loading...</div>';
             
-            // ⚡️ 优化：如果 posts.json 里已经有内容（比如说说），直接显示，不用再 fetch
             const currentPost = this.posts.find(p => p.file === f);
             if (currentPost && currentPost.content) {
                  content.innerHTML = marked.parse(currentPost.content);
                  return;
             }
-
             try {
                 const res = await fetch(`./posts/${f}`);
                 if(!res.ok) throw new Error();
@@ -548,34 +522,19 @@
             }
         },
 
-        hideAll() {
-            ['home-view', 'archive-view', 'article-view', 'status-view'].forEach(id => document.getElementById(id).classList.add('hidden'));
-        },
-
+        hideAll() { ['home-view', 'archive-view', 'article-view', 'status-view'].forEach(id => document.getElementById(id).classList.add('hidden')); },
         handleRoute() {
             const h = location.hash.slice(1);
-            if(!h) { 
-                this.hideAll(); document.getElementById('home-view').classList.remove('hidden'); 
-            } else if(h==='archive') {
-                this.renderArchive();
-            } else if(h==='category') {
-                this.renderCategory();
-            } else if(h==='status') {
-                // 🟢 路由到说说页面
-                this.renderStatus();
-            } else {
-                this.renderPost(h);
-            }
+            if(!h) { this.hideAll(); document.getElementById('home-view').classList.remove('hidden'); }
+            else if(h==='archive') { this.renderArchive(); }
+            else if(h==='category') { this.renderCategory(); }
+            else if(h==='status') { this.renderStatus(); }
+            else { this.renderPost(h); }
         },
-
-        toggleMenu() {
-            document.getElementById('sidebar').classList.toggle('active');
-            document.getElementById('overlay').classList.toggle('active');
-        },
+        toggleMenu() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); },
         goHome() { location.hash = ''; },
-
         startTimer() {
-            const start = new Date("2026-01-21").getTime();
+            const start = new Date("2025-01-01").getTime();
             setInterval(() => {
                 const now = Date.now();
                 document.getElementById('uptime').innerText = Math.floor((now-start)/86400000);
