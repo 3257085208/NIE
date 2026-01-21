@@ -7,7 +7,7 @@
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5.2.0/github-markdown-light.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/@waline/client@v2/dist/waline.css" />
 
     <style>
@@ -19,7 +19,7 @@
             --border: #eaecef;
             --menu-bg: rgba(255, 255, 255, 0.95);
             --tag-bg: #f3f5f7;
-            --float-btn-bg: #ffffff; /* 悬浮按钮背景 */
+            --float-btn-bg: #ffffff;
             
             --waline-theme-color: var(--accent) !important;
             --waline-active-color: #2c855e !important;
@@ -42,7 +42,10 @@
         }
 
         body {
-            font-family: 'Nunito', -apple-system, "Noto Serif SC", sans-serif;
+            /* 🟢 核心修改：全新的圆润字体栈 */
+            /* 优先使用 Nunito 显示英文和数字 */
+            /* 中文使用系统自带的现代黑体 (PingFang, YaHei UI)，比宋体更圆润柔和 */
+            font-family: 'Nunito', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
             background: var(--bg);
             color: var(--text);
             margin: 0;
@@ -50,7 +53,7 @@
             line-height: 1.7;
             transition: background 0.3s, color 0.3s;
             -webkit-tap-highlight-color: transparent;
-            scroll-behavior: smooth; /* 全局平滑滚动 */
+            scroll-behavior: smooth;
         }
 
         [data-theme="dark"] .markdown-body { background: transparent !important; color: var(--text) !important; }
@@ -68,6 +71,7 @@
         .brand-area { display: flex; align-items: center; gap: 15px; cursor: pointer; }
         .avatar { width: 48px; height: 48px; border-radius: 50%; border: 1px solid var(--border); transition: transform 0.5s; }
         .avatar:hover { transform: rotate(360deg); }
+        /* 标题继承圆润字体，并加粗 */
         .site-title { font-weight: 800; font-size: 1.5rem; letter-spacing: 0.5px; color: var(--text); }
         .theme-icon { font-size: 1.1rem; color: #f1c40f; margin-left: 8px; cursor: pointer; transition: transform 0.3s; }
         .theme-icon:hover { transform: scale(1.2); }
@@ -109,17 +113,20 @@
 
         /* Content */
         .intro-text { font-size: 1.1rem; margin-bottom: 15px; color: var(--text); font-weight: 600;}
-        .countdown { font-family: 'Nunito', monospace; font-weight: 700; color: var(--text); margin-bottom: 25px; font-size: 1rem;}
+        /* 倒计时使用 Nunito 的数字，很圆润 */
+        .countdown { font-family: 'Nunito', monospace; font-weight: 800; color: var(--text); margin-bottom: 25px; font-size: 1rem;}
         .social-contact { display: flex; align-items: center; gap: 18px; font-size: 1.3rem; color: var(--text); margin-top: 25px; }
         .social-label { font-weight: 800; margin-right: 5px; font-size: 1rem; color: var(--text); }
         .social-icon-link { color: var(--text); transition: color 0.2s; }
         .social-icon-link:hover { color: var(--accent); }
 
+        /* 🟢 修改点：大标题现在使用圆润字体栈 */
         .section-header { font-size: 1.8rem; font-weight: 800; color: var(--accent); margin: 50px 0 30px 0; }
 
         .post-list { display: flex; flex-direction: column; gap: 35px; }
         .post-item { display: flex; flex-direction: column; align-items: flex-start; }
-        .post-date { font-size: 0.9rem; color: var(--text-sub); margin-bottom: 6px; font-family: 'Nunito', monospace; font-weight: 600; }
+        /* 🟢 修改点：日期也使用继承的圆润字体，不再用尖锐的等宽字体 */
+        .post-date { font-size: 0.9rem; color: var(--text-sub); margin-bottom: 6px; font-weight: 600; }
         .post-title-link {
             font-size: 1.25rem; color: var(--text); text-decoration: none;
             border-bottom: 2px solid var(--border); padding-bottom: 2px;
@@ -137,54 +144,23 @@
         
         .archive-year { font-size: 1.8rem; font-weight: 800; margin: 40px 0 20px; color: var(--text); }
         .archive-item { display: flex; gap: 20px; margin-bottom: 15px; align-items: baseline; }
-        .archive-date { font-family: 'Nunito', monospace; color: var(--text-sub); min-width: 50px; font-weight: 600;}
+        /* 🟢 修改点：归档日期也圆润化 */
+        .archive-date { color: var(--text-sub); min-width: 50px; font-weight: 600;}
         .archive-link { text-decoration: none; color: var(--text); border-bottom: 1px solid var(--border); }
         .archive-link:hover { color: var(--accent); border-color: var(--accent); }
 
-        /* ================= 🟢 新增：右下角悬浮按钮组 ================= */
+        /* 悬浮按钮组 */
         #float-btn-group {
-            position: fixed;
-            bottom: 40px;
-            right: 25px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            z-index: 900;
-            opacity: 0; /* 默认隐藏 */
-            pointer-events: none; /* 隐藏时不可点击 */
-            transition: opacity 0.3s ease, transform 0.3s ease;
-            transform: translateY(20px);
+            position: fixed; bottom: 40px; right: 25px; display: flex; flex-direction: column; gap: 15px; z-index: 900;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease, transform 0.3s ease; transform: translateY(20px);
         }
-
-        /* 激活状态 */
-        #float-btn-group.visible {
-            opacity: 1;
-            pointer-events: auto;
-            transform: translateY(0);
-        }
-
+        #float-btn-group.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
         .float-btn {
-            width: 45px;
-            height: 45px;
-            background: var(--float-btn-bg);
-            border: 1px solid var(--border);
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.1rem;
-            color: var(--text-sub);
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-            transition: all 0.2s;
+            width: 45px; height: 45px; background: var(--float-btn-bg); border: 1px solid var(--border); border-radius: 50%;
+            display: flex; justify-content: center; align-items: center; font-size: 1.1rem; color: var(--text-sub);
+            cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.08); transition: all 0.2s;
         }
-
-        .float-btn:hover {
-            color: var(--accent);
-            border-color: var(--accent);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(62, 175, 124, 0.2);
-        }
+        .float-btn:hover { color: var(--accent); border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 6px 15px rgba(62, 175, 124, 0.2); }
     </style>
 </head>
 <body>
@@ -192,12 +168,8 @@
 <div id="overlay" onclick="app.toggleMenu()"></div>
 
 <div id="float-btn-group">
-    <div class="float-btn" onclick="app.goHome()" title="返回列表">
-        <i class="fa-solid fa-arrow-left"></i>
-    </div>
-    <div class="float-btn" onclick="window.scrollTo({top:0, behavior:'smooth'})" title="回到顶部">
-        <i class="fa-solid fa-arrow-up"></i>
-    </div>
+    <div class="float-btn" onclick="app.goHome()" title="返回列表"><i class="fa-solid fa-arrow-left"></i></div>
+    <div class="float-btn" onclick="window.scrollTo({top:0, behavior:'smooth'})" title="回到顶部"><i class="fa-solid fa-arrow-up"></i></div>
 </div>
 
 <nav id="sidebar">
@@ -311,7 +283,6 @@
         posts: [],
         init() {
             window.addEventListener('hashchange', () => this.handleRoute());
-            // 🟢 新增：监听滚动事件
             window.addEventListener('scroll', () => this.handleScroll());
             this.loadTheme();
             this.fetchData();
@@ -333,15 +304,9 @@
             this.loadTheme();
         },
 
-        // 🟢 新增：滚动判断逻辑
         handleScroll() {
             const btnGroup = document.getElementById('float-btn-group');
-            // 超过 300px 显示按钮
-            if (window.scrollY > 300) {
-                btnGroup.classList.add('visible');
-            } else {
-                btnGroup.classList.remove('visible');
-            }
+            if (window.scrollY > 300) { btnGroup.classList.add('visible'); } else { btnGroup.classList.remove('visible'); }
         },
 
         async fetchData() {
@@ -360,9 +325,7 @@
         calcStats(allPosts) {
             document.getElementById('total-posts').innerText = this.posts.length;
             let totalWords = 0;
-            this.posts.forEach(p => {
-                totalWords += (p.word_count || 0);
-            });
+            this.posts.forEach(p => { totalWords += (p.word_count || 0); });
             document.getElementById('total-words').innerText = totalWords.toLocaleString();
         },
 
@@ -372,14 +335,10 @@
             this.posts.forEach(p => {
                 const div = document.createElement('div');
                 div.className = 'post-item';
-                
                 let tagsHtml = '';
                 if(p.tags && Array.isArray(p.tags) && p.tags.length > 0) {
-                    tagsHtml = `<div class="post-tags">` + 
-                        p.tags.map(t => `<span class="tag-pill">#${t}</span>`).join('') + 
-                        `</div>`;
+                    tagsHtml = `<div class="post-tags">` + p.tags.map(t => `<span class="tag-pill">#${t}</span>`).join('') + `</div>`;
                 }
-
                 div.innerHTML = `
                     <div class="post-date">${p.date}</div>
                     <a href="#${p.file}" class="post-title-link">${p.title}</a>
