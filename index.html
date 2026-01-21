@@ -13,18 +13,14 @@
     <style>
         :root {
             --bg: #ffffff;
-            --text: #50616d; /* 更柔和的蓝灰色 */
+            --text: #50616d;
             --text-sub: #9aa5b1;
-            
-            /* 🟢 颜色微调：清新的薄荷绿 */
-            --accent: #42b983; 
-            
+            --accent: #42b983; /* 清新薄荷绿 */
             --border: #f0f2f5;
             --menu-bg: rgba(255, 255, 255, 0.98);
             --tag-bg: #f8fafc;
             --float-btn-bg: #ffffff;
             
-            /* Waline 样式覆盖 */
             --waline-theme-color: var(--accent) !important;
             --waline-active-color: #2c3e50 !important;
             --waline-bgcolor: #ffffff !important;
@@ -49,8 +45,6 @@
         }
 
         body {
-            /* 🟢 字体栈升级：优先使用圆体 */
-            /* Nunito (英) -> Yuanti SC (Mac圆体) -> YouYuan (Win幼圆) -> YaHei UI (Win柔黑) */
             font-family: 'Nunito', 'Yuanti SC', 'YouYuan', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
             background: var(--bg);
             color: var(--text);
@@ -62,10 +56,7 @@
             scroll-behavior: smooth;
         }
 
-        /* 修复 Markdown 内容字体 */
-        .markdown-body {
-            font-family: 'Nunito', 'Yuanti SC', 'YouYuan', 'Microsoft YaHei UI', sans-serif !important;
-        }
+        .markdown-body { font-family: 'Nunito', 'Yuanti SC', 'YouYuan', 'Microsoft YaHei UI', sans-serif !important; }
         [data-theme="dark"] .markdown-body { background: transparent !important; color: var(--text) !important; }
         [data-theme="dark"] .markdown-body pre { background: #2d3748 !important; border-radius: 12px; }
 
@@ -76,9 +67,8 @@
             min-height: 100vh;
         }
 
-        /* --- Header --- */
+        /* Header */
         header { display: flex; justify-content: space-between; align-items: center; height: 80px; margin-bottom: 40px; }
-        
         .brand-area { display: flex; align-items: center; gap: 15px; cursor: pointer; }
         .avatar { width: 52px; height: 52px; border-radius: 50%; border: 2px solid var(--border); transition: transform 0.5s; }
         .avatar:hover { transform: rotate(360deg); }
@@ -90,7 +80,6 @@
         .pc-nav a { text-decoration: none; color: var(--text); position: relative; padding: 5px 0; transition: color 0.2s;}
         .pc-nav a:hover { color: var(--accent); }
         .nav-divider { color: var(--border); font-weight: 300; }
-        
         .mobile-menu-btn { font-size: 1.4rem; color: var(--accent); cursor: pointer; padding: 5px; display: block; }
 
         @media (min-width: 768px) {
@@ -100,7 +89,7 @@
             #overlay { display: none !important; }
         }
 
-        /* --- Sidebar --- */
+        /* Sidebar */
         #sidebar {
             position: fixed; top: 0; right: 0; width: 240px; height: 100%;
             background: var(--menu-bg); z-index: 9999; padding: 40px 30px;
@@ -121,17 +110,19 @@
             border-bottom: 1px dashed var(--border);
         }
 
-        /* --- Content --- */
-        .intro-text { font-size: 1.15rem; margin-bottom: 15px; color: var(--text); font-weight: 700;}
-        
-        /* 🟢 时间样式 */
-        .countdown { 
-            font-family: 'Nunito', 'YouYuan', monospace; 
-            font-weight: 700; color: var(--accent); 
-            margin-bottom: 25px; font-size: 1rem;
-            background: var(--tag-bg); padding: 10px 15px; border-radius: 12px;
+        /* Content */
+        /* 🟢 极客风打字机光标动画 */
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        .cursor {
             display: inline-block;
+            width: 10px;
+            height: 2px;
+            background: var(--accent);
+            animation: blink 1s step-end infinite;
+            margin-left: 5px;
+            vertical-align: middle;
         }
+        .intro-text { font-size: 1.15rem; margin-bottom: 25px; color: var(--text); font-weight: 700;}
         
         .social-contact { display: flex; align-items: center; gap: 20px; font-size: 1.4rem; color: var(--text); margin-top: 30px; }
         .social-label { font-weight: 800; margin-right: 5px; font-size: 1rem; color: var(--text); }
@@ -140,7 +131,7 @@
 
         .section-header { font-size: 1.8rem; font-weight: 800; color: var(--accent); margin: 60px 0 30px 0; }
 
-        /* --- List --- */
+        /* List */
         .post-list { display: flex; flex-direction: column; gap: 35px; }
         .post-item { display: flex; flex-direction: column; align-items: flex-start; }
         .post-date { font-size: 0.9rem; color: var(--text-sub); margin-bottom: 8px; font-weight: 700; }
@@ -167,10 +158,8 @@
         /* Footer */
         footer { margin-top: 100px; text-align: center; font-size: 0.9rem; color: var(--text-sub); border-top: 1px dashed var(--border); padding-top: 40px; font-weight: 600; }
         
-        /* 🟢 自定义评论工具栏 (仿 Valine) */
-        #custom-toolbar {
-            display: flex; gap: 5px; margin-bottom: 10px; flex-wrap: wrap;
-        }
+        /* Waline Custom */
+        #custom-toolbar { display: flex; gap: 5px; margin-bottom: 10px; flex-wrap: wrap; }
         .toolbar-btn {
             background: var(--tag-bg); border: none; padding: 5px 12px; 
             border-radius: 8px; cursor: pointer; color: var(--text-sub); font-size: 0.9rem; font-weight: bold;
@@ -178,22 +167,13 @@
         }
         .toolbar-btn:hover { background: var(--accent); color: white; }
 
-        /* 🟢 Waline 修复 & 美化 */
         #waline { margin-top: 50px; }
         .wl-editor { 
-            width: 100% !important;
-            box-sizing: border-box !important; /* 修复宽度溢出 */
-            min-height: 120px; 
-            border-radius: 12px !important; 
-            padding: 15px !important;
-            font-family: 'Nunito', 'YouYuan', sans-serif !important;
-            resize: vertical !important; /* 允许垂直拉伸 */
-            margin-bottom: 10px;
+            width: 100% !important; box-sizing: border-box !important; min-height: 120px; 
+            border-radius: 12px !important; padding: 15px !important;
+            font-family: 'Nunito', 'YouYuan', sans-serif !important; resize: vertical !important; margin-bottom: 10px;
         }
-        /* 隐藏掉 Waline 原生可能导致的右下角冲突图标 */
         .wl-editor::-webkit-resizer { display: none; } 
-        
-        /* 修复评论卡片 */
         .wl-card { border-radius: 15px !important; border: 1px solid var(--border) !important; margin-bottom: 15px !important; box-shadow: none !important;}
         .wl-btn { border-radius: 20px !important; background: var(--accent) !important; border-color: var(--accent) !important; }
 
@@ -266,9 +246,8 @@
     </header>
 
     <div id="home-view">
-        <div class="intro-text">花有重开日，人无再少年。</div>
-        <div class="countdown">
-            <i class="fa-regular fa-clock"></i> <span id="clock-text">正在连接时间线...</span>
+        <div class="intro-text">
+            花有重开日，人无再少年<span class="cursor"></span>
         </div>
         
         <div class="social-contact">
@@ -335,13 +314,13 @@
         document.getElementById('waline').innerHTML = '';
         init({
             el: '#waline',
-            serverURL: 'https://waline.nkx.moe', 
+            serverURL: 'https://waline.vercel.app', 
             path: path,
             dark: 'body[data-theme="dark"]',
             emoji: ['//unpkg.com/@waline/emojis@1.1.0/weibo'],
             login: 'force',
-            search: false, // 关闭搜索
-            imageUploader: false, // 关闭图片上传(如果你想极简)
+            search: false, 
+            imageUploader: false, 
             locale: { placeholder: '此处支持 Markdown 语法...' }
         });
     }
@@ -355,7 +334,7 @@
             window.addEventListener('scroll', () => this.handleScroll());
             this.loadTheme();
             this.fetchData();
-            this.startClock(); // 启动时钟
+            this.startTimer();
         },
         
         loadTheme() {
@@ -397,19 +376,15 @@
             document.getElementById('total-words').innerText = totalWords.toLocaleString();
         },
 
-        // 🟢 快捷插入 Markdown 逻辑
         insertText(prefix, suffix) {
             const textarea = document.querySelector('.wl-editor');
             if (!textarea) return;
-            
             const start = textarea.selectionStart;
             const end = textarea.selectionEnd;
             const text = textarea.value;
-            
             const before = text.substring(0, start);
             const selection = text.substring(start, end);
             const after = text.substring(end);
-            
             textarea.value = before + prefix + selection + suffix + after;
             textarea.focus();
             textarea.selectionStart = start + prefix.length;
@@ -514,30 +489,12 @@
         },
         goHome() { location.hash = ''; },
 
-        // 🟢 实时时钟逻辑
-        startClock() {
-            const update = () => {
-                const now = new Date();
-                // 强制转为北京时间 (UTC+8)
-                // 获取 UTC 时间戳 + 8小时毫秒数
-                const utc8 = new Date(now.getTime() + (480 + now.getTimezoneOffset()) * 60000);
-                
-                const y = utc8.getFullYear();
-                const m = utc8.getMonth() + 1;
-                const d = utc8.getDate();
-                const h = utc8.getHours().toString().padStart(2, '0');
-                const min = utc8.getMinutes().toString().padStart(2, '0');
-                const s = utc8.getSeconds().toString().padStart(2, '0');
-                
-                document.getElementById('clock-text').innerText = 
-                    `公元 ${y} 年 ${m} 月 ${d} 日 ${h} 时 ${min} 分 ${s} 秒`;
-                
-                // 运行天数计算
-                const start = new Date("2025-01-01").getTime();
-                document.getElementById('uptime').innerText = Math.floor((now.getTime() - start)/86400000);
-            };
-            setInterval(update, 1000);
-            update();
+        startTimer() {
+            const start = new Date("2025-01-01").getTime();
+            setInterval(() => {
+                const now = Date.now();
+                document.getElementById('uptime').innerText = Math.floor((now-start)/86400000);
+            }, 1000);
         }
     };
     app.init();
