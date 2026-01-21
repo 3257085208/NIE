@@ -28,41 +28,72 @@ jobs:
           python3 -c "
           import os, json, re, yaml
 
+          POSTS_DIR = 'posts'
+          OUTPUT_FILE = 'posts.json'
           posts = []
-          # 扫描 posts 文件夹
-          if os.path.exists('posts'):
-              for f in os.listdir('posts'):
+
+          print('--- 开始扫描文章 ---')
+
+          if os.path.exists(POSTS_DIR):
+              for f in os.listdir(POSTS_DIR):
                   if f.endswith('.md'):
+                      filepath = os.path.join(POSTS_DIR, f)
+                      
+                      # 1. 【保底逻辑】先根据文件名生成基础数据
+                      # 默认假设文件名格式：YYYY-MM-DD-标题.md
+                      base_info = {
+                          'file': f,
+                          'title': f.replace('.md', ''),
+                          'date': '2020-01-01', # 默认日期
+                          'category': '默认',
+                          'tags': []
+                      }
+
+                      # 尝试从文件名提取日期和标题
+                      # 例如：2026-01-21-测试文章2.md
+                      filename_match = re.match(r'(\d{4}-\d{2}-\d{2})-(.+)\.md', f)
+                      if filename_match:
+                          base_info['date'] = filename_match.group(1)
+                          base_info['title'] = filename_match.group(2)
+                      
+                      # 2. 【增强解析】尝试读取 Front Matter (--- ... ---)
                       try:
-                          item = {'file': f, 'title': f.replace('.md', ''), 'date': '2020-01-01', 'tags': []}
-                          
-                          # 1. 尝试从文件名获取日期
-                          match = re.match(r'(\d{4}-\d{2}-\d{2})-(.+)\.md', f)
-                          if match:
-                              item['date'] = match.group(1)
-                              item['title'] = match.group(2)
-                          
-                          # 2. 尝试读取 Front Matter (YAML头)
-                          with open(os.path.join('posts', f), 'r', encoding='utf-8') as file:
+                          with open(filepath, 'r', encoding='utf-8') as file:
                               content = file.read()
-                              # 简单的正则匹配 YAML
-                              fm = re.search(r'^---\s+(.*?)\s+---', content, re.DOTALL)
-                              if fm:
-                                  try:
-                                      meta = yaml.safe_load(fm.group(1))
-                                      if meta:
-                                          if 'title' in meta: item['title'] = str(meta['title'])
-                                          if 'date' in meta: item['date'] = str(meta['date'])
-                                          if 'tags' in meta: item['tags'] = meta['tags']
-                                  except: pass
-                          
-                          posts.append(item)
-                      except: pass
+                              
+                              # 更宽松的正则匹配
+                              fm_match = re.search(r'^---\s*\n(.*?)\n---', content, re.DOTALL)
+                              if fm_match:
+                                  yaml_text = fm_match.group(1)
+                                  meta = yaml.safe_load(yaml_text)
+                                  
+                                  if isinstance(meta, dict):
+                                      # 如果 YAML 读取成功，覆盖基础数据
+                                      if 'title' in meta: base_info['title'] = str(meta['title'])
+                                      if 'date' in meta: base_info['date'] = str(meta['date'])
+                                      if 'category' in meta: base_info['category'] = str(meta['category'])
+                                      if 'tags' in meta: 
+                                          # 强制转为列表
+                                          base_info['tags'] = meta['tags'] if isinstance(meta['tags'], list) else [str(meta['tags'])]
+                                          
+                                      print(f'[成功] 解析元数据: {f}')
+                                  else:
+                                      print(f'[警告] YAML 格式不正确，使用文件名数据: {f}')
+                              else:
+                                  print(f'[提示] 未发现 YAML 头，使用文件名数据: {f}')
+                      except Exception as e:
+                          print(f'[错误] 读取文件失败 {f}: {e}')
+                          # 即使出错，也把 base_info 加进去，保证文章能显示！
+
+                      # 3. 添加到列表
+                      posts.append(base_info)
 
           # 按日期倒序
-          posts.sort(key=lambda x: x['date'], reverse=True)
+          posts.sort(key=lambda x: str(x['date']), reverse=True)
 
-          with open('posts.json', 'w', encoding='utf-8') as f:
+          print(f'--- 扫描结束，共找到 {len(posts)} 篇文章 ---')
+
+          with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
               json.dump(posts, f, ensure_ascii=False)
           "
 
