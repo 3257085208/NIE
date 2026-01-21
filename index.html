@@ -533,7 +533,7 @@
         toggleMenu() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); },
         goHome() { location.hash = ''; },
         startTimer() {
-            const start = new Date("2025-01-01").getTime();
+            const start = new Date("2026-01-21").getTime();
             setInterval(() => {
                 const now = Date.now();
                 document.getElementById('uptime').innerText = Math.floor((now-start)/86400000);
