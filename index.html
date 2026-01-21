@@ -3,11 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>聶.NET | is NKX !</title>
+    <title>雫.net | MOE!</title>
     
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5.2.0/github-markdown-light.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="dns-prefetch" href="//busuanzi.ibruce.info">
+    <link rel="dns-prefetch" href="//fonts.loli.net">
+    <link rel="dns-prefetch" href="//cdn.staticfile.org">
+
+    <link rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/5.2.0/github-markdown-light.min.css">
+    <link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.4.2/css/all.min.css">
+    
+    <link href="https://fonts.loli.net/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="https://unpkg.com/@waline/client@v2/dist/waline.css" />
 
     <style>
@@ -15,12 +21,13 @@
             --bg: #ffffff;
             --text: #50616d;
             --text-sub: #9aa5b1;
-            --accent: #42b983; /* 清新薄荷绿 */
+            --accent: #42b983; 
             --border: #f0f2f5;
             --menu-bg: rgba(255, 255, 255, 0.98);
             --tag-bg: #f8fafc;
             --float-btn-bg: #ffffff;
             
+            /* Waline */
             --waline-theme-color: var(--accent) !important;
             --waline-active-color: #2c3e50 !important;
             --waline-bgcolor: #ffffff !important;
@@ -45,6 +52,7 @@
         }
 
         body {
+            /* 字体栈：英文Nunito，中文优先匹配系统圆体 */
             font-family: 'Nunito', 'Yuanti SC', 'YouYuan', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
             background: var(--bg);
             color: var(--text);
@@ -69,8 +77,12 @@
 
         /* Header */
         header { display: flex; justify-content: space-between; align-items: center; height: 80px; margin-bottom: 40px; }
+        
         .brand-area { display: flex; align-items: center; gap: 15px; cursor: pointer; }
-        .avatar { width: 52px; height: 52px; border-radius: 50%; border: 2px solid var(--border); transition: transform 0.5s; }
+        .avatar { 
+            width: 52px; height: 52px; border-radius: 50%; border: 2px solid var(--border); 
+            transition: transform 0.5s; object-fit: cover; /* 防止图片变形 */
+        }
         .avatar:hover { transform: rotate(360deg); }
         .site-title { font-weight: 800; font-size: 1.5rem; letter-spacing: 1px; color: var(--text); }
         .theme-icon { font-size: 1.2rem; color: #f6ad55; margin-left: 10px; cursor: pointer; transition: transform 0.3s; }
@@ -80,6 +92,7 @@
         .pc-nav a { text-decoration: none; color: var(--text); position: relative; padding: 5px 0; transition: color 0.2s;}
         .pc-nav a:hover { color: var(--accent); }
         .nav-divider { color: var(--border); font-weight: 300; }
+        
         .mobile-menu-btn { font-size: 1.4rem; color: var(--accent); cursor: pointer; padding: 5px; display: block; }
 
         @media (min-width: 768px) {
@@ -111,17 +124,8 @@
         }
 
         /* Content */
-        /* 🟢 极客风打字机光标动画 */
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-        .cursor {
-            display: inline-block;
-            width: 10px;
-            height: 2px;
-            background: var(--accent);
-            animation: blink 1s step-end infinite;
-            margin-left: 5px;
-            vertical-align: middle;
-        }
+        .cursor { display: inline-block; width: 10px; height: 2px; background: var(--accent); animation: blink 1s step-end infinite; margin-left: 5px; vertical-align: middle; }
         .intro-text { font-size: 1.15rem; margin-bottom: 25px; color: var(--text); font-weight: 700;}
         
         .social-contact { display: flex; align-items: center; gap: 20px; font-size: 1.4rem; color: var(--text); margin-top: 30px; }
@@ -221,7 +225,7 @@
 <div class="container">
     <header>
         <div class="brand-area">
-            <img src="https://github.com/3257085208.png" class="avatar" alt="avatar" onclick="app.goHome()">
+            <img src="https://你的图床域名/avatar.png" class="avatar" alt="avatar" onclick="app.goHome()">
             <div style="display:flex; align-items:center;">
                 <span class="site-title" onclick="app.goHome()">聶.net MOE!</span>
                 <i id="theme-icon" class="fa-solid fa-sun theme-icon" onclick="app.toggleTheme()"></i>
@@ -253,9 +257,9 @@
         <div class="social-contact">
             <span class="social-label">与我联系</span>
             <a href="mailto:nkx080112@gmail.com" class="social-icon-link" title="Email"><i class="fa-solid fa-envelope"></i></a>
-            <a href="tencent://message/?uin=3257085208" class="social-icon-link" title="QQ"><i class="fa-brands fa-qq"></i></a>
-            <a href="https://t.me/MarkNKX" class="social-icon-link" title="Telegram"><i class="fa-brands fa-telegram"></i></a>
-            <a href="https://wa.me/7756621259" class="social-icon-link" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+            <a href="tencent://message/?uin=YOUR_QQ" class="social-icon-link" title="QQ"><i class="fa-brands fa-qq"></i></a>
+            <a href="https://t.me/NieKaiXiang" class="social-icon-link" title="Telegram"><i class="fa-brands fa-telegram"></i></a>
+            <a href="https://wa.me/YOUR_NUMBER" class="social-icon-link" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
             <a href="https://github.com/3257085208" class="social-icon-link" title="GitHub"><i class="fa-brands fa-github"></i></a>
         </div>
 
@@ -298,15 +302,15 @@
             <span style="margin:0 10px; color:var(--border)">|</span>
             <span>字数 <span id="total-words">0</span></span>
         </div>
-        <div>Theme Higan | Powered by NKX</div>
-        <div>&copy; 2026 聶.NET is NKX !</div>
+        <div>Theme Higan | Powered by Nie.net</div>
+        <div>&copy; 2026 聶.net MOE!</div>
         <div style="margin-top:15px; color:#f6ad55; font-weight:bold;">
             <i class="fa-solid fa-star"></i> 小站已稳定运行 <span id="uptime">0</span> 天
         </div>
     </footer>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.staticfile.org/marked/9.1.2/marked.min.js"></script>
 <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 <script type="module">
     import { init } from 'https://unpkg.com/@waline/client@v2/dist/waline.mjs';
@@ -314,11 +318,16 @@
         document.getElementById('waline').innerHTML = '';
         init({
             el: '#waline',
-            serverURL: 'https://waline.nkx.moe', 
+            // ⚠️ 记得换成你自己的 Vercel 后端地址
+            serverURL: 'https://你的-waline-地址.vercel.app', 
+            
             path: path,
             dark: 'body[data-theme="dark"]',
             emoji: ['//unpkg.com/@waline/emojis@1.1.0/weibo'],
+            
+            // 匿名发布配置
             login: 'enable',
+            
             search: false, 
             imageUploader: false, 
             locale: { placeholder: '此处支持 Markdown 语法...' }
@@ -358,7 +367,8 @@
 
         async fetchData() {
             try {
-                const res = await fetch('./posts.json?v=' + Math.random());
+                // ⚡️ 速度优化：去掉随机数，允许 CDN 缓存 (如果你觉得文章更新不及时，再改回 + Math.random())
+                const res = await fetch('./posts.json?t=' + Math.floor(Date.now() / 60000)); 
                 const data = await res.json();
                 this.posts = data.filter(p => !p.file.toLowerCase().includes('guestbook'));
                 this.renderList();
@@ -382,10 +392,7 @@
             const start = textarea.selectionStart;
             const end = textarea.selectionEnd;
             const text = textarea.value;
-            const before = text.substring(0, start);
-            const selection = text.substring(start, end);
-            const after = text.substring(end);
-            textarea.value = before + prefix + selection + suffix + after;
+            textarea.value = text.substring(0, start) + prefix + text.substring(start, end) + suffix + text.substring(end);
             textarea.focus();
             textarea.selectionStart = start + prefix.length;
             textarea.selectionEnd = end + prefix.length;
@@ -464,6 +471,7 @@
                 const res = await fetch(`./posts/${f}`);
                 if(!res.ok) throw new Error();
                 const text = await res.text();
+                // 简单过滤 front matter
                 const cleanText = text.replace(/^---[\s\S]*?---/, '');
                 content.innerHTML = marked.parse(cleanText);
             } catch(e) {
@@ -490,7 +498,7 @@
         goHome() { location.hash = ''; },
 
         startTimer() {
-            const start = new Date("2026-01-21").getTime();
+            const start = new Date("2025-01-01").getTime();
             setInterval(() => {
                 const now = Date.now();
                 document.getElementById('uptime').innerText = Math.floor((now-start)/86400000);
