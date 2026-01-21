@@ -13,17 +13,14 @@
     <style>
         :root {
             --bg: #ffffff;
-            --text: #3c4858; /* 稍微柔和一点的深灰 */
+            --text: #3c4858;
             --text-sub: #8590a6;
-            
-            /* 🟢 颜色微调：更护眼的薄荷绿 */
             --accent: #3eaf7c; 
-            
             --border: #eaecef;
             --menu-bg: rgba(255, 255, 255, 0.95);
             --tag-bg: #f3f5f7;
+            --float-btn-bg: #ffffff; /* 悬浮按钮背景 */
             
-            /* Waline 适配 */
             --waline-theme-color: var(--accent) !important;
             --waline-active-color: #2c855e !important;
         }
@@ -36,6 +33,7 @@
             --border: #333333;
             --menu-bg: rgba(28, 28, 28, 0.95);
             --tag-bg: #333;
+            --float-btn-bg: #2d2d2d;
             
             --waline-bgcolor: #252525 !important; 
             --waline-bgcolor-light: #303030 !important;
@@ -44,7 +42,6 @@
         }
 
         body {
-            /* 🟢 字体调整：优先使用 Nunito 圆体 */
             font-family: 'Nunito', -apple-system, "Noto Serif SC", sans-serif;
             background: var(--bg);
             color: var(--text);
@@ -53,104 +50,35 @@
             line-height: 1.7;
             transition: background 0.3s, color 0.3s;
             -webkit-tap-highlight-color: transparent;
+            scroll-behavior: smooth; /* 全局平滑滚动 */
         }
 
-        /* 暗黑模式 Markdown 修复 */
         [data-theme="dark"] .markdown-body { background: transparent !important; color: var(--text) !important; }
         [data-theme="dark"] .markdown-body pre { background: #2d2d2d !important; }
 
         .container {
-            max-width: 800px; /* 稍微加宽一点点，更大气 */
+            max-width: 800px;
             margin: 0 auto;
-            /* 顶部间距收紧 */
             padding: 30px 20px 80px; 
             min-height: 100vh;
         }
 
-        /* ================= Header 布局 (复刻参考图) ================= */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 80px; /* 固定高度 */
-            margin-bottom: 40px;
-        }
-
-        /* 左侧 Logo 区域 */
-        .brand-area {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            cursor: pointer;
-        }
-        
-        .avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            border: 1px solid var(--border);
-            transition: transform 0.5s;
-        }
+        /* Header */
+        header { display: flex; justify-content: space-between; align-items: center; height: 80px; margin-bottom: 40px; }
+        .brand-area { display: flex; align-items: center; gap: 15px; cursor: pointer; }
+        .avatar { width: 48px; height: 48px; border-radius: 50%; border: 1px solid var(--border); transition: transform 0.5s; }
         .avatar:hover { transform: rotate(360deg); }
-
-        .site-title {
-            font-weight: 800; /* 圆体加粗很好看 */
-            font-size: 1.5rem;
-            letter-spacing: 0.5px;
-            color: var(--text);
-        }
-
-        /* 日夜切换图标 (放在标题旁边) */
-        .theme-icon {
-            font-size: 1.1rem;
-            color: #f1c40f; /* 太阳颜色 */
-            margin-left: 8px;
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
+        .site-title { font-weight: 800; font-size: 1.5rem; letter-spacing: 0.5px; color: var(--text); }
+        .theme-icon { font-size: 1.1rem; color: #f1c40f; margin-left: 8px; cursor: pointer; transition: transform 0.3s; }
         .theme-icon:hover { transform: scale(1.2); }
 
-        /* 右侧导航 (PC端) */
-        .pc-nav {
-            display: none; /* 默认隐藏 */
-            gap: 25px;
-            font-size: 1rem;
-            font-weight: 700;
-        }
-        
-        .pc-nav a {
-            text-decoration: none;
-            color: var(--accent); /* 默认绿色 */
-            position: relative;
-            padding: 5px 0;
-        }
-        
-        /* 简单的悬停下划线动画 */
-        .pc-nav a::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--accent);
-            transition: width 0.3s;
-        }
+        .pc-nav { display: none; gap: 25px; font-size: 1rem; font-weight: 700; }
+        .pc-nav a { text-decoration: none; color: var(--accent); position: relative; padding: 5px 0; }
+        .pc-nav a::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background: var(--accent); transition: width 0.3s; }
         .pc-nav a:hover::after { width: 100%; }
-        
-        /* 竖线分隔符 */
         .nav-divider { color: var(--border); font-weight: 300; }
+        .mobile-menu-btn { font-size: 1.3rem; color: var(--accent); cursor: pointer; padding: 5px; display: block; }
 
-        /* 手机端汉堡按钮 */
-        .mobile-menu-btn {
-            font-size: 1.3rem;
-            color: var(--accent);
-            cursor: pointer;
-            padding: 5px;
-            display: block;
-        }
-
-        /* 响应式控制 */
         @media (min-width: 768px) {
             .mobile-menu-btn { display: none !important; }
             .pc-nav { display: flex !important; }
@@ -158,106 +86,119 @@
             #overlay { display: none !important; }
         }
 
-        /* ================= 侧边栏 (手机端) ================= */
+        /* Sidebar */
         #sidebar {
-            position: fixed; top: 0; right: 0; 
-            width: 240px; /* 适中的宽度 */
-            height: 100%;
-            background: var(--menu-bg); 
-            z-index: 9999; 
-            padding: 40px 30px;
+            position: fixed; top: 0; right: 0; width: 240px; height: 100%;
+            background: var(--menu-bg); z-index: 9999; padding: 40px 30px;
             box-shadow: -5px 0 20px rgba(0,0,0,0.05);
-            transform: translateX(100%); 
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex; flex-direction: column; gap: 20px;
         }
         #sidebar.active { transform: translateX(0); }
-        
         #overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.2); z-index: 9998;
-            backdrop-filter: blur(2px);
+            background: rgba(0,0,0,0.2); z-index: 9998; backdrop-filter: blur(2px);
             display: none; opacity: 0; transition: opacity 0.3s;
         }
         #overlay.active { display: block; opacity: 1; }
-
         .menu-link {
             font-size: 1.1rem; color: var(--text); text-decoration: none; font-weight: 800;
             display: flex; align-items: center; gap: 15px; padding-bottom: 15px;
             border-bottom: 1px dashed var(--border);
         }
 
-        /* ================= 内容区 ================= */
+        /* Content */
         .intro-text { font-size: 1.1rem; margin-bottom: 15px; color: var(--text); font-weight: 600;}
         .countdown { font-family: 'Nunito', monospace; font-weight: 700; color: var(--text); margin-bottom: 25px; font-size: 1rem;}
-
-        /* 社交图标栏 */
-        .social-contact {
-            display: flex; align-items: center; gap: 18px; font-size: 1.3rem; color: var(--text);
-            margin-top: 25px;
-        }
+        .social-contact { display: flex; align-items: center; gap: 18px; font-size: 1.3rem; color: var(--text); margin-top: 25px; }
         .social-label { font-weight: 800; margin-right: 5px; font-size: 1rem; color: var(--text); }
         .social-icon-link { color: var(--text); transition: color 0.2s; }
         .social-icon-link:hover { color: var(--accent); }
 
-        /* 大标题 */
-        .section-header {
-            font-size: 1.8rem; font-weight: 800; color: var(--accent); 
-            margin: 50px 0 30px 0; 
-        }
+        .section-header { font-size: 1.8rem; font-weight: 800; color: var(--accent); margin: 50px 0 30px 0; }
 
-        /* ================= 文章列表 ================= */
         .post-list { display: flex; flex-direction: column; gap: 35px; }
         .post-item { display: flex; flex-direction: column; align-items: flex-start; }
-        
-        /* 日期 */
-        .post-date { 
-            font-size: 0.9rem; color: var(--text-sub); margin-bottom: 6px; 
-            font-family: 'Nunito', monospace; font-weight: 600;
-        }
-        
-        /* 标题链接 */
+        .post-date { font-size: 0.9rem; color: var(--text-sub); margin-bottom: 6px; font-family: 'Nunito', monospace; font-weight: 600; }
         .post-title-link {
             font-size: 1.25rem; color: var(--text); text-decoration: none;
-            border-bottom: 2px solid var(--border); /* 加粗下划线 */
-            padding-bottom: 2px;
+            border-bottom: 2px solid var(--border); padding-bottom: 2px;
             line-height: 1.4; font-weight: 700; transition: all 0.2s;
         }
         .post-title-link:hover { color: var(--accent); border-color: var(--accent); }
-
-        /* 标签 */
         .post-tags { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
-        .tag-pill {
-            font-size: 0.8rem; color: var(--text-sub); background: var(--tag-bg);
-            padding: 2px 8px; border-radius: 6px; font-weight: 600;
-        }
+        .tag-pill { font-size: 0.8rem; color: var(--text-sub); background: var(--tag-bg); padding: 2px 8px; border-radius: 6px; font-weight: 600; }
 
-        /* ================= 页脚 ================= */
-        footer {
-            margin-top: 100px; text-align: center; font-size: 0.9rem; color: var(--text-sub);
-            border-top: 1px solid var(--border); padding-top: 40px; line-height: 2;
-            font-weight: 600;
-        }
+        footer { margin-top: 100px; text-align: center; font-size: 0.9rem; color: var(--text-sub); border-top: 1px solid var(--border); padding-top: 40px; line-height: 2; font-weight: 600; }
         
-        /* 辅助类 */
         .hidden { display: none !important; }
-        .back-btn { 
-            display: inline-block; margin-bottom: 30px; color: var(--accent); 
-            font-weight: 800; cursor: pointer; font-size: 1rem; 
-        }
+        .back-btn { display: inline-block; margin-bottom: 30px; color: var(--accent); font-weight: 800; cursor: pointer; font-size: 1rem; }
         #waline { margin-top: 80px; }
         
-        /* 归档样式 */
         .archive-year { font-size: 1.8rem; font-weight: 800; margin: 40px 0 20px; color: var(--text); }
         .archive-item { display: flex; gap: 20px; margin-bottom: 15px; align-items: baseline; }
         .archive-date { font-family: 'Nunito', monospace; color: var(--text-sub); min-width: 50px; font-weight: 600;}
         .archive-link { text-decoration: none; color: var(--text); border-bottom: 1px solid var(--border); }
         .archive-link:hover { color: var(--accent); border-color: var(--accent); }
+
+        /* ================= 🟢 新增：右下角悬浮按钮组 ================= */
+        #float-btn-group {
+            position: fixed;
+            bottom: 40px;
+            right: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 900;
+            opacity: 0; /* 默认隐藏 */
+            pointer-events: none; /* 隐藏时不可点击 */
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            transform: translateY(20px);
+        }
+
+        /* 激活状态 */
+        #float-btn-group.visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        .float-btn {
+            width: 45px;
+            height: 45px;
+            background: var(--float-btn-bg);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.1rem;
+            color: var(--text-sub);
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            transition: all 0.2s;
+        }
+
+        .float-btn:hover {
+            color: var(--accent);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(62, 175, 124, 0.2);
+        }
     </style>
 </head>
 <body>
 
 <div id="overlay" onclick="app.toggleMenu()"></div>
+
+<div id="float-btn-group">
+    <div class="float-btn" onclick="app.goHome()" title="返回列表">
+        <i class="fa-solid fa-arrow-left"></i>
+    </div>
+    <div class="float-btn" onclick="window.scrollTo({top:0, behavior:'smooth'})" title="回到顶部">
+        <i class="fa-solid fa-arrow-up"></i>
+    </div>
+</div>
 
 <nav id="sidebar">
     <div style="font-weight:900; font-size:1.6rem; color:var(--accent); margin-bottom:20px;">MENU</div>
@@ -370,6 +311,8 @@
         posts: [],
         init() {
             window.addEventListener('hashchange', () => this.handleRoute());
+            // 🟢 新增：监听滚动事件
+            window.addEventListener('scroll', () => this.handleScroll());
             this.loadTheme();
             this.fetchData();
             this.startTimer();
@@ -379,6 +322,7 @@
             const t = localStorage.getItem('theme') || 'light';
             document.body.setAttribute('data-theme', t);
             document.getElementById('theme-icon').className = t==='light'?'fa-solid fa-sun theme-icon':'fa-solid fa-moon theme-icon';
+            document.getElementById('theme-icon').parentElement.style.color = t==='light'?'#f39c12':'#f1c40f';
         },
         
         toggleTheme() {
@@ -389,34 +333,36 @@
             this.loadTheme();
         },
 
+        // 🟢 新增：滚动判断逻辑
+        handleScroll() {
+            const btnGroup = document.getElementById('float-btn-group');
+            // 超过 300px 显示按钮
+            if (window.scrollY > 300) {
+                btnGroup.classList.add('visible');
+            } else {
+                btnGroup.classList.remove('visible');
+            }
+        },
+
         async fetchData() {
             try {
-                // 加随机数防止缓存
                 const res = await fetch('./posts.json?v=' + Math.random());
                 const data = await res.json();
                 this.posts = data.filter(p => !p.file.toLowerCase().includes('guestbook'));
                 this.renderList();
                 this.handleRoute();
-                // 计算真实数据
                 this.calcStats(data);
             } catch(e) {
                 document.getElementById('posts-container').innerHTML = "文章加载失败";
             }
         },
 
-        // 🟢 真实字数统计逻辑
         calcStats(allPosts) {
-            // 过滤掉 guestbook 后的文章数量
             document.getElementById('total-posts').innerText = this.posts.length;
-            
-            // 累加所有文章的字数
             let totalWords = 0;
-            // 注意：这里用 allPosts 统计所有文件(包含guestbook)的字数，还是只统计展示的文章？
-            // 通常统计“已发布文章”的字数，所以用 this.posts
             this.posts.forEach(p => {
                 totalWords += (p.word_count || 0);
             });
-            // 格式化数字
             document.getElementById('total-words').innerText = totalWords.toLocaleString();
         },
 
