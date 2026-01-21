@@ -1,46 +1,90 @@
-import os
-import json
-import re
+name: Auto Build
 
-# 配置
-POSTS_DIR = 'posts'
-OUTPUT_FILE = 'posts.json'
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
 
-def generate_json():
-    posts = []
-    
-    # 扫描 posts 文件夹
-    if not os.path.exists(POSTS_DIR):
-        print(f"Directory {POSTS_DIR} not found.")
-        return
+permissions:
+  contents: write
 
-    for filename in os.listdir(POSTS_DIR):
-        if filename.endswith('.md'):
-            # 解析文件名: 2026-01-20-标题.md
-            # 如果文件名不规范，就用修改时间和文件名
-            match = re.match(r'(\d{4}-\d{2}-\d{2})-(.+)\.md', filename)
-            
-            if match:
-                date = match.group(1)
-                title = match.group(2)
-            else:
-                date = "Unknown"
-                title = filename.replace('.md', '')
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
 
-            posts.append({
-                "title": title,
-                "date": date,
-                "file": filename
-            })
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
 
-    # 按日期倒序排序
-    posts.sort(key=lambda x: x['date'], reverse=True)
+      - name: Generate JSON with Metadata
+        run: |
+          python3 -c "
+          import os, json, re
 
-    # 写入 json
-    with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
-        json.dump(posts, f, ensure_ascii=False, indent=2)
-    
-    print(f"Generated {len(posts)} posts into {OUTPUT_FILE}")
+          posts = []
+          POSTS_DIR = 'posts'
 
-if __name__ == "__main__":
-    generate_json()
+          if os.path.exists(POSTS_DIR):
+              for f in os.listdir(POSTS_DIR):
+                  if f.endswith('.md'):
+                      filepath = os.path.join(POSTS_DIR, f)
+                      
+                      # 默认值 (如果文章没写头信息，就用这些兜底)
+                      metadata = {
+                          'title': f.replace('.md', ''),
+                          'date': 'Unknown',
+                          'category': '日常',  # 默认分类
+                          'tags': [],
+                          'file': f
+                      }
+
+                      # 尝试从文件名获取日期 (YYYY-MM-DD-标题.md)
+                      filename_match = re.match(r'(\d{4}-\d{2}-\d{2})-(.+)\.md', f)
+                      if filename_match:
+                          metadata['date'] = filename_match.group(1)
+                          metadata['title'] = filename_match.group(2)
+
+                      # 读取文件内容解析 Front Matter
+                      with open(filepath, 'r', encoding='utf-8') as file:
+                          content = file.read()
+                          
+                          # 正则匹配 --- 之间的内容
+                          front_matter = re.search(r'^---\s+(.*?)\s+---', content, re.DOTALL)
+                          
+                          if front_matter:
+                              yaml_text = front_matter.group(1)
+                              for line in yaml_text.split('\n'):
+                                  if ':' in line:
+                                      key, value = line.split(':', 1)
+                                      key = key.strip()
+                                      value = value.strip()
+                                      
+                                      # 处理数组格式 [Tag1, Tag2]
+                                      if key == 'tags' and value.startswith('[') and value.endswith(']'):
+                                          value = [t.strip() for t in value[1:-1].split(',')]
+                                      elif key == 'tags': # 处理 tags: tag1 (单个)
+                                          value = [value]
+                                      
+                                      metadata[key] = value
+
+                      posts.append(metadata)
+
+          # 按日期倒序
+          posts.sort(key=lambda x: x['date'], reverse=True)
+
+          with open('posts.json', 'w', encoding='utf-8') as out:
+              json.dump(posts, out, ensure_ascii=False)
+          print('JSON Generated')
+          "
+
+      - name: Commit and Push
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add posts.json
+          git commit -m "Auto update metadata" || echo "No changes to commit"
+          git push
