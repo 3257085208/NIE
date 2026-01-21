@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/5.2.0/github-markdown-light.min.css">
     <link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.4.2/css/all.min.css">
     <link href="https://fonts.loli.net/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://npm.elemecdn.com/@waline/client@v2/dist/waline.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@waline/client@v2/dist/waline.css" />
 
     <style>
         :root {
@@ -340,15 +340,19 @@
 <script src="https://cdn.staticfile.org/marked/9.1.2/marked.min.js"></script>
 <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 <script type="module">
-    import { init } from 'https://npm.elemecdn.com/@waline/client@v2/dist/waline.mjs';
+    <script type="module">
+    // 🟢 核心修复：换用 JSDelivr 官方源，解决 403 问题
+    import { init } from 'https://cdn.jsdelivr.net/npm/@waline/client@v2/dist/waline.mjs';
+    
     window.loadWaline = function(path) {
         document.getElementById('waline').innerHTML = '';
         init({
             el: '#waline',
-            serverURL: 'https://waline.nkx.moe', 
+            serverURL: 'https://waline-comment-seven-beta.vercel.app', 
             path: path,
             dark: 'body[data-theme="dark"]',
-            emoji: ['//npm.elemecdn.com/@waline/emojis@1.1.0/weibo'],
+            // 🟢 Emoji 也建议换成 JSDelivr，防止那个也挂掉
+            emoji: ['//cdn.jsdelivr.net/npm/@waline/emojis@1.1.0/weibo'],
             login: 'enable',
             search: false, 
             imageUploader: false, 
